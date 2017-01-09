@@ -24,6 +24,8 @@ echo "<body>"
 
 if [ "$PARAM_KEY" != "title" ] ; then
     echo "error"
+    echo "</body>"
+    echo "</html>"
     exit
 fi
 
@@ -31,6 +33,8 @@ TITLE=`echo ${PARAM_VAL} | nkf --url-input | sed 's/+/ /g'`
 
 if [ "$TITLE" = "" ] ; then
     echo "error"
+    echo "</body>"
+    echo "</html>"
     exit
 fi
 
