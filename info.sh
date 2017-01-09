@@ -30,6 +30,7 @@ if [ "$PARAM_KEY" != "title" ] ; then
 fi
 
 TITLE=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
+echo "<!-- search title = ${TITLE} -->"
 
 if [ "$TITLE" = "" ] ; then
     echo "error"
@@ -48,6 +49,7 @@ curl -b timezoneOffset=32400,0 -L ${URL} 2>/dev/null > ${TMP_PAGE_FILE}
 
 # save app id for the steamdb
 APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }'`
+echo "<!-- app_id = ${APP_ID} -->"
 
 # get some params by a steam page
 DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g'`
@@ -70,6 +72,7 @@ LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'titl
 curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
 META_TITLE=`echo ${TITLE} | sed 's/+/-/g'`
 [ "$META_LINK" = "" ] && META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | grep ${META_TITLE} | head -n 1`
+echo "<!-- metacritic url = ${META_LINK} -->"
 
 URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' 2>/dev/null > ${TMP_PAGE_FILE}
