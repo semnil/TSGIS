@@ -4,7 +4,7 @@ export LANG='ja_JP.UTF-8'
 export LC_ALL='ja_JP.UTF-8'
 export LC_MESSAGES='ja_JP.UTF-8'
 
-TMP_PAGE_FILE=/tmp/tmp.html
+TMP_PAGE_FILE=/tmp/tmp.json
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q="
 
 
