@@ -86,7 +86,7 @@ DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[
 rm -rf ${TMP_PAGE_FILE}
 
 
-# formated output
+# formatted output
 #echo -e $TITLE\\t$DATE\\t$GENRE\\t${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}\\t$REVIEWS\\t$PRICE_STR\\t=hyperlink\($STEAM_LINK\;\"Steam\"\)\\t=hyperlink\($DEVELOPER_LINK\;\"$DEVELOPER\"\)
 echo "<table border=1>"
 
