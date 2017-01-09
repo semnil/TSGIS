@@ -82,10 +82,11 @@ META_SCORE=`cat ${TMP_PAGE_FILE} | grep "ratingValue" | sed 's/.*\">//g' | sed '
 USER_SCORE=`cat ${TMP_PAGE_FILE} | grep "metascore_w user large" | head -n 1 | sed 's/.*\">//g' | sed 's/<\/.*//g'`
 
 
-# search a developer site by the google
-QUERY=`echo ${DEVELOPER} | sed 's/ /+/g'`
-DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[].link' | grep -v "wikipedia" | grep -v "twitter" | head -n 1`
-
+if [ "$DEVELOPER" != "" ] ; then
+    # search a developer site by the google
+    QUERY=`echo ${DEVELOPER} | sed 's/ /+/g'`
+    DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[].link' | grep -v "wikipedia" | grep -v "twitter" | head -n 1`
+fi
 
 rm -rf ${TMP_PAGE_FILE}
 
@@ -115,7 +116,7 @@ echo "<td>${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}</td>"
 echo "<td>$REVIEWS</td>"
 echo "<td>$PRICE_STR</td>"
 echo "<td><a href=$STEAM_LINK>Steam</a></td>"
-echo "<td><a href=$DEVELOPER_LINK>$DEVELOPER</a></td>"
+[ "$DEVELOPER" == "" ] && echo "<td></td>" || echo "<td><a href=$DEVELOPER_LINK>$DEVELOPER</a></td>"
 echo "</tr>"
 
 echo "<tr>"
@@ -127,7 +128,7 @@ echo "<td>${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}</td>"
 echo "<td>$REVIEWS</td>"
 echo "<td>$PRICE_STR</td>"
 echo "<td>=hyperlink($STEAM_LINK;\"Steam\")</td>"
-echo "<td>=hyperlink($DEVELOPER_LINK;\"$DEVELOPER\")</td>"
+[ "$DEVELOPER" == "" ] && echo "<td></td>" || echo "<td>=hyperlink($DEVELOPER_LINK;\"$DEVELOPER\")</td>"
 echo "</tr>"
 
 echo "</table>"
