@@ -29,7 +29,7 @@ if [ "$PARAM_KEY" != "title" ] ; then
     exit
 fi
 
-TITLE=`echo ${PARAM_VAL} | nkf --url-input | sed 's/+/ /g'`
+TITLE=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
 
 if [ "$TITLE" = "" ] ; then
     echo "error"
