@@ -80,7 +80,7 @@ USER_SCORE=`cat ${TMP_PAGE_FILE} | grep "metascore_w user large" | head -n 1 | s
 
 # search a developer site by the google
 QUERY=`echo ${DEVELOPER} | sed 's/ /+/g'`
-DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[].link' | grep -v "wikipedia" | head -n 1`
+DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[].link' | grep -v "wikipedia" | grep -v "twitter" | head -n 1`
 
 
 rm -rf ${TMP_PAGE_FILE}
