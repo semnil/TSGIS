@@ -45,7 +45,11 @@ QUERY=`echo ${TITLE} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%
 STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}steam+${QUERY}" 2>/dev/null | jq '.items[].link' | head -n 1 | sed 's/\?.*"/"/g'`
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 URL="${URL}?l=japanese"
-curl -b timezoneOffset=32400,0 -L ${URL} 2>/dev/null > ${TMP_PAGE_FILE}
+echo "<!-- steam page status"
+STATUS=`curl -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' 2>/dev/null`
+echo ${STATUS}
+echo "-->"
+[ "${STATUS}" != "200" ] && echo '<p><b><font color="red">Can not open a steam page.</font></b></p>'
 
 # save app id for the steamdb
 APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }'`
@@ -75,7 +79,11 @@ META_TITLE=`echo ${TITLE} | sed 's/+/-/g'`
 echo "<!-- metacritic url = ${META_LINK} -->"
 
 URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
-curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' 2>/dev/null > ${TMP_PAGE_FILE}
+echo "<!-- metacritic page status"
+STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+echo ${STATUS}
+echo "-->"
+[ "${STATUS}" != "200" ] && echo '<p><b><font color="red">Can not open a metacritic page.</font></b></p>'
 
 # get two scores from the metacritic
 META_SCORE=`cat ${TMP_PAGE_FILE} | grep "ratingValue" | sed 's/.*\">//g' | sed 's/<\/.*//g'`
