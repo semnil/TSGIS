@@ -67,8 +67,9 @@ LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'titl
 
 
 # search a steam page by the google
-curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}" 2>/dev/null > ${TMP_PAGE_FILE}
-[ "$META_LINK" = "" ] && META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com" | head -n 1`
+curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
+META_TITLE=`echo ${TITLE} | sed 's/+/-/g'`
+[ "$META_LINK" = "" ] && META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | grep ${META_TITLE} | head -n 1`
 
 URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' 2>/dev/null > ${TMP_PAGE_FILE}
