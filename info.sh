@@ -68,10 +68,12 @@ META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | sed 's/.*href=//g'
 # get price by a steamdb page
 curl -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
 PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="jp"' | awk '{ print $1 }'`
-NOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'data-sort="0"' | sed 's/.*">¥ *//g' | sed 's/<.*//g' | sed 's/ *at.*//g'`
-LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g'`
-[ "$LOW_PRICE" = "" ] && LOW_PRICE=${NOW_PRICE}
-[ "$NOW_PRICE" = "" ] || PRICE_STR=${NOW_PRICE}/${LOW_PRICE}
+if [ "${PRICE_LINE}" != "" ] ; then
+    NOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'data-sort="0"' | sed 's/.*">¥ *//g' | sed 's/<.*//g' | sed 's/ *at.*//g'`
+    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g'`
+    [ "$LOW_PRICE" = "" ] && LOW_PRICE=${NOW_PRICE}
+    [ "$NOW_PRICE" = "" ] || PRICE_STR=${NOW_PRICE}/${LOW_PRICE}
+fi
 
 
 # search a steam page by the google
