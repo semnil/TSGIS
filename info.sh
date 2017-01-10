@@ -80,6 +80,7 @@ if [ "$META_LINK" = "" ] ; then
     META_TITLE=`echo ${DISPLAY_TITLE} | sed 's/://g' | sed "s/'//g" | sed 's/ /-/g'`
     # generate a metacritic page URL from title
     URL="http://www.metacritic.com/game/pc/$META_TITLE"
+    echo "<!-- metacritic url = ${URL} -->"
     echo "<!-- metacritic page status"
     STATUS=`curl -L ${URL} -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
     echo ${STATUS}
