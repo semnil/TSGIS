@@ -42,7 +42,7 @@ fi
 
 # search a steam page by the google
 QUERY=`echo ${TITLE} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
-STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}steam+${QUERY}" 2>/dev/null | jq '.items[].link' | head -n 1 | sed 's/\?.*"/"/g'`
+STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}steam+${QUERY}" 2>/dev/null | jq '.items[].link' | grep "store.steampowered.com/app" | head -n 1 | sed 's/\?.*"/"/g'`
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 URL="${URL}?l=japanese"
 echo "<!-- steam page status"
