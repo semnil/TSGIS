@@ -74,7 +74,7 @@ LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'titl
 
 # search a steam page by the google
 curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
-META_TITLE=`echo ${TITLE} | sed 's/+/-/g'`
+META_TITLE=`echo ${TITLE} | sed 's/ /-/g'`
 [ "$META_LINK" = "" ] && META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | grep ${META_TITLE} | head -n 1`
 echo "<!-- metacritic url = ${META_LINK} -->"
 
