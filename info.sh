@@ -76,22 +76,43 @@ if [ "${PRICE_LINE}" != "" ] ; then
 fi
 
 
-# search a steam page by the google
-curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
-META_TITLE=`echo ${TITLE} | sed 's/ /-/g'`
-[ "$META_LINK" = "" ] && META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | grep ${META_TITLE} | head -n 1`
-echo "<!-- metacritic url = ${META_LINK} -->"
+if [ "$META_LINK" = "" ] ; then
+    META_TITLE=`echo ${TITLE} | sed 's/://g' | sed "s/'//g" | sed 's/ /-/g'`
+    # generate a metacritic page URL from title
+    URL="http://www.metacritic.com/game/pc/$META_TITLE"
+    echo "<!-- metacritic page status"
+    STATUS=`curl -L ${URL} -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+    echo ${STATUS}
+    echo "-->"
 
-URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
-echo "<!-- metacritic page status"
-STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
-echo ${STATUS}
-echo "-->"
-[ "${STATUS}" != "200" ] && echo '<p><b><font color="red">Can not open a metacritic page.</font></b></p>'
-
-# get two scores from the metacritic
-META_SCORE=`cat ${TMP_PAGE_FILE} | grep "ratingValue" | sed 's/.*\">//g' | sed 's/<\/.*//g'`
-USER_SCORE=`cat ${TMP_PAGE_FILE} | grep "metascore_w user large" | head -n 1 | sed 's/.*\">//g' | sed 's/<\/.*//g'`
+    if [ "${STATUS}" != "200" ] ; then
+        # search a metacritic page by the google
+        curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
+        META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | grep ${META_TITLE} | head -n 1`
+        URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
+        echo "<!-- metacritic url = ${URL} -->"
+        echo "<!-- metacritic page status"
+        STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+        echo ${STATUS}
+        echo "-->"
+    fi
+else
+    URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
+    echo "<!-- metacritic url = ${URL} -->"
+    echo "<!-- metacritic page status"
+    STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+    echo ${STATUS}
+    echo "-->"
+fi
+if [ "${STATUS}" != "200" ] ; then
+    echo '<p><b><font color="red">Can not open a metacritic page.</font></b></p>'
+    METASCORE_STR=""
+else
+    # get two scores from the metacritic
+    META_SCORE=`cat ${TMP_PAGE_FILE} | grep "ratingValue" | sed 's/.*\">//g' | sed 's/<\/.*//g'`
+    USER_SCORE=`cat ${TMP_PAGE_FILE} | grep "metascore_w user large" | head -n 1 | sed 's/.*\">//g' | sed 's/<\/.*//g'`
+    METASCORE_STR=${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}
+fi
 
 
 if [ "$DEVELOPER" != "" ] ; then
@@ -124,7 +145,7 @@ echo "<td></td>"
 echo "<td>$DISPLAY_TITLE</td>"
 echo "<td>$DATE</td>"
 echo "<td>$GENRE</td>"
-echo "<td>${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}</td>"
+echo "<td>$METASCORE_STR</td>"
 echo "<td>$REVIEWS</td>"
 echo "<td>$PRICE_STR</td>"
 echo "<td><a href=$STEAM_LINK>Steam</a></td>"
@@ -136,7 +157,7 @@ echo "<td>for spreadsheet</td>"
 echo "<td>$DISPLAY_TITLE</td>"
 echo "<td>$DATE</td>"
 echo "<td>$GENRE</td>"
-echo "<td>${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}</td>"
+echo "<td>$METASCORE_STR</td>"
 echo "<td>$REVIEWS</td>"
 echo "<td>$PRICE_STR</td>"
 echo "<td>=hyperlink($STEAM_LINK;\"Steam\")</td>"
