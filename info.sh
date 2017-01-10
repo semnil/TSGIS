@@ -119,7 +119,8 @@ fi
 
 if [ "$DEVELOPER" != "" ] ; then
     # search a developer site by the google
-    QUERY=`echo ${DEVELOPER} | sed 's/ /+/g'`
+    QUERY=`echo ${DEVELOPER} | sed 's/&amp;/%26/g' | sed 's/ /+/g' | sed 's/\++/+/g'`
+    echo "<!-- developer query = ${QUERY} -->"
     DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[].link' | grep -v "wikipedia" | grep -v "twitter" | head -n 1`
 fi
 
