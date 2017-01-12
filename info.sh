@@ -83,9 +83,17 @@ curl -b cc=jp -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_
 PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
 if [ "${PRICE_LINE}" != "" ] ; then
     LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g'`
-    [ "$LOW_PRICE" = "" ] && LOW_PRICE=${ORIGINAL_PRICE}
+    if [ "$LOW_PRICE" = "" -a "$ORIGINAL_PRICE" = "" ] ; then
+        echo "<!-- get USD price -->"
+        PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="us"' | awk '{ print $1 }'`
+        ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep "\\\\$" | head -n 1 | sed -e 's/<[^>]*>//g' | tr -d ' '`
+        LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed -e 's/<[^>]*>//g' | sed -e 's/at.*//g' | tr -d ' '`
+    elif [ "$LOW_PRICE" = "" ] ; then
+        LOW_PRICE=${ORIGINAL_PRICE}
+    fi
     [ "$ORIGINAL_PRICE" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
 else
+    echo '<p><b><font color="red">Can not open a steamdb page.</font></b></p>'
     PRICE_STR=${ORIGINAL_PRICE}
 fi
 
