@@ -82,6 +82,8 @@ else
 fi
 
 # get price by a steamdb page
+DB_LINK="\"https://steamdb.info/app/${APP_ID}/\""
+echo "<!-- steamdb url = ${DB_LINK} -->"
 curl -b cc=jp -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
 PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
 if [ "${PRICE_LINE}" != "" ] ; then
@@ -105,6 +107,7 @@ if [ "$META_LINK" = "" ] ; then
     META_TITLE=`echo ${DISPLAY_TITLE} | tr "A-Z" "a-z" | sed 's/://g' | sed "s/'//g" | sed 's/ /-/g'`
     # generate a metacritic page URL from title
     URL="http://www.metacritic.com/game/pc/$META_TITLE"
+    META_LINK="\"$URL\""
     echo "<!-- metacritic url = ${URL} -->"
     echo "<!-- metacritic page status"
     STATUS=`curl -L ${URL} -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
@@ -173,9 +176,9 @@ echo "<td></td>"
 echo "<td>$DISPLAY_TITLE</td>"
 echo "<td>$DATE</td>"
 echo "<td>$GENRE</td>"
-echo "<td>$METASCORE_STR</td>"
+[ "$META_LINK" != "" ] && echo "<td><a href=$META_LINK>$METASCORE_STR</a></td>" || echo "<td>$METASCORE_STR</td>"
 echo "<td>$REVIEWS</td>"
-echo "<td>$PRICE_STR</td>"
+[ "$DB_LINK" != "" ] && echo "<td><a href=$DB_LINK>$PRICE_STR</a></td>" || echo "<td>$PRICE_STR</td>"
 echo "<td><a href=$STEAM_LINK>Steam</a></td>"
 [ "$DEVELOPER" == "" ] && echo "<td></td>" || echo "<td><a href=$DEVELOPER_LINK>$DEVELOPER</a></td>"
 echo "</tr>"
