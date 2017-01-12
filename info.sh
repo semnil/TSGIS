@@ -65,14 +65,25 @@ REVIEWS=`cat ${TMP_PAGE_FILE} | grep "game_review_summary" | grep "description" 
 DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
 META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | sed 's/.*href=//g' | sed 's/ target=.*//g'`
 
+if [ "`cat ${TMP_PAGE_FILE} | grep 'discount_original_price'`" == "" ] ; then
+    # not discounted
+    PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="game_purchase_price' | head -n 1 | awk '{ print $1 }'`
+    PRICE_LINE_STR=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥"`
+    ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥" | sed -e 's/.*¥ //g' | sed -e 's/[^0-9]*//g' | tr -d ','`
+else
+    # discounted
+    ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | grep "discount_original_price" | head -n 1 | sed -e 's/.*class="discount_original_price">¥ //g' | sed -e 's/<.*//g' | sed 's/,//g'`
+fi
+
 # get price by a steamdb page
-curl -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
-PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="jp"' | awk '{ print $1 }'`
+curl -b cc=jp -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
+PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
 if [ "${PRICE_LINE}" != "" ] ; then
-    NOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'data-sort="0"' | sed 's/.*">¥ *//g' | sed 's/<.*//g' | sed 's/ *at.*//g'`
-    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 7 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g'`
-    [ "$LOW_PRICE" = "" ] && LOW_PRICE=${NOW_PRICE}
-    [ "$NOW_PRICE" = "" ] || PRICE_STR=${NOW_PRICE}/${LOW_PRICE}
+    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g'`
+    [ "$LOW_PRICE" = "" ] && LOW_PRICE=${ORIGINAL_PRICE}
+    [ "$ORIGINAL_PRICE" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
+else
+    PRICE_STR=${ORIGINAL_PRICE}
 fi
 
 
