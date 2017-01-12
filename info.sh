@@ -69,8 +69,10 @@ META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | sed 's/.*href=//g'
 if [ "`cat ${TMP_PAGE_FILE} | grep 'class="discount_original_price"'`" == "" ] ; then
     # not discounted
     PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="game_purchase_price' | head -n 1 | awk '{ print $1 }'`
-    PRICE_LINE_STR=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥"`
-    ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥" | sed -e 's/.*¥ //g' | sed -e 's/[^0-9]*//g' | tr -d ','`
+    if [ "$PRICE_LINE" != "" ] ; then
+        PRICE_LINE_STR=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥"`
+        ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥" | sed -e 's/.*¥ //g' | sed -e 's/[^0-9]*//g' | tr -d ','`
+    fi
 else
     # discounted
     ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | grep 'class="discount_original_price"' | head -n 1 | sed -e 's/.*class="discount_original_price">¥ //g' | sed -e 's/<.*//g' | sed 's/,//g'`
