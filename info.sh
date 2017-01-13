@@ -40,10 +40,16 @@ if [ "$TITLE" = "" ] ; then
 fi
 
 
-# search a steam page by the google
-QUERY=`echo ${TITLE} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
-echo "<!-- steam search query = $QUERY -->"
-STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}steam+${QUERY}" 2>/dev/null | jq '.items[].link' | grep "store.steampowered.com/app" | head -n 1 | sed 's/\?.*"/"/g'`
+if [ `expr "$TITLE" + 1 >/dev/null 2>&1` -lt 2 ] ; then
+    # make link url from AppId
+    STEAM_LINK="\"http://store.steampowered.com/app/$TITLE/\""
+else
+    # search a steam page by the google
+    QUERY=`echo ${TITLE} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
+    echo "<!-- steam search query = $QUERY -->"
+    STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}steam+${QUERY}" 2>/dev/null | jq '.items[].link' | grep "store.steampowered.com/app" | head -n 1 | sed 's/\?.*"/"/g'`
+fi
+
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 URL="${URL}?l=japanese"
 echo "<!-- steam url = ${URL} -->"
