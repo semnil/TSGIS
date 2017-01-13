@@ -29,10 +29,10 @@ if [ "$PARAM_KEY" != "title" ] ; then
     exit
 fi
 
-TITLE=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
-echo "<!-- search title = ${TITLE} -->"
+INPUT_STR=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
+echo "<!-- search title = ${INPUT_STR} -->"
 
-if [ "$TITLE" = "" ] ; then
+if [ "$INPUT_STR" = "" ] ; then
     echo "error"
     echo "</body>"
     echo "</html>"
@@ -40,12 +40,12 @@ if [ "$TITLE" = "" ] ; then
 fi
 
 
-if [ `expr "$TITLE" + 1 >/dev/null 2>&1` -lt 2 ] ; then
+if [ `expr "$INPUT_STR" + 1 >/dev/null 2>&1` -lt 2 ] ; then
     # make link url from AppId
-    STEAM_LINK="\"http://store.steampowered.com/app/$TITLE/\""
+    STEAM_LINK="\"http://store.steampowered.com/app/$INPUT_STR/\""
 else
     # search a steam page by the google
-    QUERY=`echo ${TITLE} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
+    QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
     echo "<!-- steam search query = $QUERY -->"
     STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}steam+${QUERY}" 2>/dev/null | jq '.items[].link' | grep "store.steampowered.com/app" | head -n 1 | sed 's/\?.*"/"/g'`
 fi
