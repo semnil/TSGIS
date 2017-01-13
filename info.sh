@@ -30,7 +30,7 @@ if [ "$PARAM_KEY" != "title" ] ; then
 fi
 
 INPUT_STR=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
-echo "<!-- search title = ${INPUT_STR} -->"
+echo "<!-- input string = ${INPUT_STR} -->"
 
 if [ "$INPUT_STR" = "" ] ; then
     echo "error"
