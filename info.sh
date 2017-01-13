@@ -40,7 +40,8 @@ if [ "$INPUT_STR" = "" ] ; then
 fi
 
 
-if [ `expr "$INPUT_STR" + 1 >/dev/null 2>&1` -lt 2 ] ; then
+expr "$INPUT_STR" + 1 >/dev/null 2>&1
+if [ $? -lt 2 ] ; then
     # make link url from AppId
     STEAM_LINK="\"http://store.steampowered.com/app/$INPUT_STR/\""
 else
