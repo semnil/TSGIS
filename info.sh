@@ -44,9 +44,9 @@ expr "$INPUT_STR" + 1 >/dev/null 2>&1
 if [ $? -lt 2 ] ; then
     # make link url from AppId
     STEAM_LINK="\"http://store.steampowered.com/app/$INPUT_STR/\""
-elif echo ${INPUT_STR} | grep '^http:\/\/store.steampowered.com\/app\/[0-9]\+\/$' >/dev/null 2>&1 ; then
+elif echo ${INPUT_STR} | grep '^http:\/\/store.steampowered.com\/app\/[0-9]\+' >/dev/null 2>&1 ; then
     # input steam url
-    STEAM_LINK=\"${INPUT_STR}\"
+    STEAM_LINK=\"`echo ${INPUT_STR} | sed -e 's/\?[^\/]*$//g'`\"
 else
     # search a steam page by the google
     QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
