@@ -92,7 +92,7 @@ else
 fi
 
 # get price by a steamdb page
-DB_LINK="\"https://steamdb.info/app/${APP_ID}/\""
+DB_LINK="\"https://steamdb.info/app/${APP_ID}/?cc=jp\""
 echo "<!-- steamdb url = ${DB_LINK} -->"
 curl -b cc=jp -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
 PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
