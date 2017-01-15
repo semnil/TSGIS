@@ -185,7 +185,6 @@ echo "<th>genre</th>"
 echo "<th>metascore</th>"
 echo "<th>reviews</th>"
 echo "<th>price</th>"
-echo "<th>store</th>"
 echo "<th>developer</th>"
 echo "</tr>"
 
