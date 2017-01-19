@@ -107,7 +107,7 @@ echo "<!-- steamdb url = ${DB_LINK} -->"
 curl -b cc=jp -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
 PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
 if [ "${PRICE_LINE}" != "" ] ; then
-    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g'`
+    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g' | sed 's/<\/.*//g'`
     if [ "$LOW_PRICE" = "" -a "$ORIGINAL_PRICE" = "" ] ; then
         echo "<!-- get USD price -->"
         PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="us"' | awk '{ print $1 }'`
