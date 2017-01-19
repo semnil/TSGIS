@@ -137,8 +137,9 @@ if [ "$META_LINK" = "" ] ; then
     if [ "${STATUS}" != "200" ] ; then
         # search a metacritic page by the google
         QUERY=`echo ${DISPLAY_TITLE} | tr "A-Z" "a-z" | sed 's/://g' | sed "s/'//g" | sed 's/ /+/g' | sed 's/%/%25/g'`
+        echo "<!-- metacritic search query = ${QUERY} -->"
         curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
-        META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | grep ${META_TITLE} | head -n 1`
+        META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | head -n 1`
         URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
         echo "<!-- metacritic url = ${URL} -->"
         echo "<!-- metacritic page status"
