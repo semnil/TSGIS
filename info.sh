@@ -32,7 +32,7 @@ echo "</head>"
 echo "<body>"
 
 if [ "$PARAM_KEY" != "title" ] ; then
-    echo "error"
+    echo "<p><b><font color=\"red\">Insufficient parameters.</font></b></p>"
     echo "</body>"
     echo "</html>"
     exit
@@ -42,7 +42,7 @@ INPUT_STR=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
 echo "<!-- input string = ${INPUT_STR} -->"
 
 if [ "$INPUT_STR" = "" ] ; then
-    echo "error"
+    echo "<p><b><font color=\"red\">Information was not input.</font></b></p>"
     echo "</body>"
     echo "</html>"
     exit
