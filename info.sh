@@ -70,7 +70,7 @@ echo "<!-- steam page status"
 STATUS=`curl -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' 2>/dev/null`
 echo ${STATUS}
 echo "-->"
-[ "${STATUS}" != "200" ] && echo '<p><b><font color="red">Can not open a steam page.</font></b></p>'
+[ "${STATUS}" != "200" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
 
 # save app id for the steamdb
 APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }'`
@@ -79,7 +79,7 @@ echo "<!-- app_id = ${APP_ID} -->"
 # get some params by a steam page
 DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
 echo "<!-- display title = ${DISPLAY_TITLE} -->"
-[ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] && echo '<p><b><font color="red">Can not open a steam page.</font></b></p>'
+[ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
 DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/日//g'`
 
 GENRE=`cat ${TMP_PAGE_FILE} | grep "\/genre\/" | grep -v "popup_menu_item" | tail -n 1 | sed 's/<[^a\"]*> *//g' | sed 's/<[^>]*>//g' | tr -d "[:blank:]"`
@@ -118,7 +118,7 @@ if [ "${PRICE_LINE}" != "" ] ; then
     fi
     [ "$ORIGINAL_PRICE" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
 else
-    echo '<p><b><font color="red">Can not open a steamdb page.</font></b></p>'
+    echo "<p><b><font color=\"red\">Can not open a steamdb page.</font></b></p>"
     PRICE_STR=${ORIGINAL_PRICE}
 fi
 
@@ -156,7 +156,7 @@ else
     echo "-->"
 fi
 if [ "${STATUS}" != "200" ] ; then
-    echo '<p><b><font color="red">Can not open a metacritic page.</font></b></p>'
+    echo "<p><b><font color=\"red\">Can not open a metacritic page.</font></b></p>"
     METASCORE_STR=""
 else
     # get two scores from the metacritic
