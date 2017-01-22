@@ -124,7 +124,7 @@ fi
 
 
 if [ "$META_LINK" = "" ] ; then
-    META_TITLE=`echo ${DISPLAY_TITLE} | tr "A-Z" "a-z" | sed -E "s/([:'\?\.&]|-$)//g" | sed 's/[_-]/ /g' | sed -E 's/ +/-/g'`
+    META_TITLE=`echo ${DISPLAY_TITLE} | tr "A-Z" "a-z" | sed -E "s/([:'\?\.&]|-$)//g" | sed 's/_/ /g' | sed -E 's/ +/-/g'`
     # generate a metacritic page URL from title
     URL="http://www.metacritic.com/game/pc/$META_TITLE"
     META_LINK="\"$URL\""
@@ -136,7 +136,7 @@ if [ "$META_LINK" = "" ] ; then
 
     if [ "${STATUS}" != "200" ] ; then
         # search a metacritic page by the google
-        QUERY=`echo ${DISPLAY_TITLE} | tr "A-Z" "a-z" | sed 's/://g' | sed "s/'//g" | sed 's/ /+/g' | sed 's/%/%25/g'`
+        QUERY=`echo ${META_TITLE} | sed -E 's/-+/\+/g' | sed 's/%/%25/g'`
         echo "<!-- metacritic search query = ${QUERY} -->"
         curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
         META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | head -n 1`
