@@ -89,7 +89,7 @@ REVIEWS=`cat ${TMP_PAGE_FILE} | grep "game_review_summary" | grep "description" 
 DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
 META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | sed 's/.*href=//g' | sed 's/ target=.*//g'`
 
-if [ "`cat ${TMP_PAGE_FILE} | grep 'class="discount_original_price"'`" == "" ] ; then
+if [ "`cat ${TMP_PAGE_FILE} | grep -v "bundle_base_discount" | grep 'class="discount_original_price"'`" == "" ] ; then
     # not discounted
     PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="game_purchase_price' | head -n 1 | awk '{ print $1 }'`
     if [ "$PRICE_LINE" != "" ] ; then
