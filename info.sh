@@ -144,7 +144,7 @@ if [ "$META_LINK" = "" ] ; then
         URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
         echo "<!-- metacritic url = ${URL} -->"
         echo "<!-- metacritic page status"
-        STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+        STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
         echo ${STATUS}
         echo "-->"
     fi
@@ -152,7 +152,7 @@ else
     URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
     echo "<!-- metacritic url = ${URL} -->"
     echo "<!-- metacritic page status"
-    STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+    STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
     echo ${STATUS}
     echo "-->"
 fi
