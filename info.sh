@@ -6,6 +6,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q="
+UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
 
 
 PARAMS=(`echo ${REQUEST_URI} | awk 'BEGIN { FS="?" ; } { print $2 }' | awk 'BEGIN { FS="&" ; } { print $1 }'`)
@@ -130,7 +131,7 @@ if [ "$META_LINK" = "" ] ; then
     META_LINK="\"$URL\""
     echo "<!-- metacritic url = ${URL} -->"
     echo "<!-- metacritic page status"
-    STATUS=`curl -L ${URL} -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+    STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
     echo ${STATUS}
     echo "-->"
 
@@ -143,7 +144,7 @@ if [ "$META_LINK" = "" ] ; then
         URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
         echo "<!-- metacritic url = ${URL} -->"
         echo "<!-- metacritic page status"
-        STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+        STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
         echo ${STATUS}
         echo "-->"
     fi
@@ -151,7 +152,7 @@ else
     URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
     echo "<!-- metacritic url = ${URL} -->"
     echo "<!-- metacritic page status"
-    STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36' -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+    STATUS=`curl -L ${URL} -H 'Referer: https://www.google.co.jp/' -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
     echo ${STATUS}
     echo "-->"
 fi
