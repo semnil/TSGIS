@@ -7,6 +7,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 TMP_PAGE_FILE=/tmp/tmp.json
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q="
 UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
+METACRITIC_STR="http://www.metacritic.com"
 
 
 PARAMS=(`echo ${REQUEST_URI} | awk 'BEGIN { FS="?" ; } { print $2 }' | awk 'BEGIN { FS="&" ; } { print $1 }'`)
@@ -136,12 +137,14 @@ if [ "$META_LINK" = "" ] ; then
     echo "-->"
 
     if [ "${STATUS}" != "200" ] ; then
-        # search a metacritic page by the google
-        QUERY=`echo ${META_TITLE} | sed -E 's/-+/\+/g' | sed 's/%/%25/g'`
+        # search a metacritic page
+        QUERY=`echo ${META_TITLE} | sed -E 's/-+/+/g'`
+        URL=`echo ${METACRITIC_STR}/search/game/${QUERY}/results | sed -E 's/\++/%20/g'`
         echo "<!-- metacritic search query = ${QUERY} -->"
-        curl -L "${GOOGLE_SEARCH_STR}metacritic+${QUERY}+pc" 2>/dev/null > ${TMP_PAGE_FILE}
-        META_LINK=`cat ${TMP_PAGE_FILE} | jq '.items[].link' | grep "metacritic.com/game/pc" | head -n 1`
-        URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
+        echo "<!-- metacritic search url = ${URL} -->"
+        curl "${URL}" -XPOST -H "${UA_OPTION}" --data "search_term=${QUERY}&search_filter=game" 2>/dev/null > ${TMP_PAGE_FILE}
+        URL=${METACRITIC_STR}`cat ${TMP_PAGE_FILE} | grep "product_title basic_stat" | head -n 1 | sed 's/^.* href="//g' | sed 's/".*$//g'`
+        META_LINK="\"$URL\""
         echo "<!-- metacritic url = ${URL} -->"
         echo "<!-- metacritic page status"
         STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
