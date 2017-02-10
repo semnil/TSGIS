@@ -94,6 +94,18 @@ echo "<!-- app_id = ${APP_ID} -->"
 
 # get some params by a steam page
 DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
+if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
+    # avoid the OMAKUNI
+    URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
+    URL="${URL}?cc=us"
+    echo "<!-- steam url = ${URL} (avoid the OMAKUNI) -->"
+    echo "<!-- steam page status"
+    STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' 2>/dev/null`
+    echo ${STATUS}
+    echo "-->"
+    DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
+    [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] || echo "<p><b><font color=\"red\">This page have OMAKUNI in Japan.</font></b></p>"
+fi
 echo "<!-- display title = ${DISPLAY_TITLE} -->"
 [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
 DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/日//g'`
