@@ -231,7 +231,7 @@ echo "</tr>"
 
 echo "</table>"
 
-echo "<br><label>for spread sheet text</label><br>"
+echo "<br><label>for spread sheet</label><br>"
 echo "<textarea id=\"output\" cols=1 rows=6>"
 echo -n "=HYPERLINK($STEAM_LINK;\"$DISPLAY_TITLE\")"
 echo -n "&#009;$DATE"
