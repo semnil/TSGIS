@@ -3,9 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>Steam ゲーム情報収集機</title>
+<script language="javascript" type="text/javascript">
+function formSubmit(target) {
+target.elements["title"].value = target.elements["title"].value.toLowerCase();
+return true;
+}
+</script>
 </head>
 <body>
-<form action="info.sh" method="get">
+<form action="info.sh" method="get" onSubmit="return formSubmit(this)">
 <p>ゲームのタイトル, Steam URL または AppID を入力<br>
 <input type="text" name="title" placeholder="Koya Rift" size="45" />
 <button type="submit" name="action" value="submit">情報収集</button></p>
