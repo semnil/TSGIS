@@ -7,6 +7,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 HIST_FILE=/tmp/$(cd $(dirname ${BASH_SOURCE:-$0}); pwd | sed 's/\//./g').hist
 
 echo "Content-type: application/javascript"
+echo "Cache-Control: no-cache"
 echo ""
 
 echo "var table = document.getElementById('hist');"

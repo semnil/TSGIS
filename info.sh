@@ -16,6 +16,7 @@ PARAM_KEY=`echo ${PARAMS[0]} | awk 'BEGIN { FS="=" ; } { print $1 }'`
 PARAM_VAL=`echo ${PARAMS[0]} | awk 'BEGIN { FS="=" ; } { print $2 }'`
 
 echo "Content-type: text/html"
+echo "Cache-Control: max-age=86400 public"
 echo ""
 echo "<!DOCTYPE html>"
 echo "<html>"
