@@ -253,6 +253,6 @@ echo "</html>"
 
 # output history
 tail -n 1 ${HIST_FILE} 2>/dev/null | grep "${DISPLAY_TITLE}" >/dev/null 2>&1
-if [ $? -ne 0 ] ; then
+if [ "${DISPLAY_TITLE}" != "" -a $? -ne 0 ] ; then
     echo -e "${DISPLAY_TITLE}\t${REQUEST_URI}" >> ${HIST_FILE}
 fi
