@@ -5,6 +5,7 @@ export LC_ALL='ja_JP.UTF-8'
 export LC_MESSAGES='ja_JP.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
+HIST_FILE=/tmp/$(cd $(dirname ${BASH_SOURCE:-$0}); pwd | sed 's/\//./g').hist
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q="
 UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
 METACRITIC_STR="http://www.metacritic.com"
@@ -248,3 +249,9 @@ echo "</textarea>"
 
 echo "</body>"
 echo "</html>"
+
+# output history
+tail -n 1 ${HIST_FILE} 2>/dev/null | grep "${DISPLAY_TITLE}" >/dev/null 2>&1
+if [ $? -ne 0 ] ; then
+    echo -e "${DISPLAY_TITLE}\t${REQUEST_URI}" >> ${HIST_FILE}
+fi
