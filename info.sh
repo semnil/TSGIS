@@ -1,11 +1,13 @@
 #!/bin/bash
 
+cd `dirname ${BASH_SOURCE:-$0}`
+
 export LANG='ja_JP.UTF-8'
 export LC_ALL='ja_JP.UTF-8'
 export LC_MESSAGES='ja_JP.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
-HIST_FILE=/tmp/$(cd $(dirname ${BASH_SOURCE:-$0}); pwd | sed 's/\//./g').hist
+HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q="
 UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
 METACRITIC_STR="http://www.metacritic.com"
@@ -15,45 +17,18 @@ PARAMS=(`echo ${REQUEST_URI} | awk 'BEGIN { FS="?" ; } { print $2 }' | awk 'BEGI
 PARAM_KEY=`echo ${PARAMS[0]} | awk 'BEGIN { FS="=" ; } { print $1 }'`
 PARAM_VAL=`echo ${PARAMS[0]} | awk 'BEGIN { FS="=" ; } { print $2 }'`
 
-echo "Content-type: text/html"
-echo "Cache-Control: max-age=86400 public"
-echo ""
-echo "<!DOCTYPE html>"
-echo "<html>"
-echo "<head>"
-echo "<meta charset="UTF-8">"
-echo "<title>収集結果</title>"
-echo "<style>"
-echo "table {"
-echo "	width: 100%;"
-echo "}"
-echo "td {"
-echo "	text-align: center;"
-echo "	word-break: break-all;"
-echo "}"
-echo "textarea {"
-echo "	width: 100%;"
-echo "}"
-echo "</style>"
-echo "<script type=\"text/javascript\">"
-echo "<!--"
-echo "onload = function() {"
-echo "  var textArea = document.getElementById(\"output\");"
-echo "  textArea.onfocus = function() {"
-echo "    textArea.select();"
-echo "  }"
-echo "  textArea.focus();"
-echo "}"
-echo "//-->"
-echo "</script>"
-echo "</head>"
+function output_close_and_exit () {
+    echo "</body>"
+    echo "</html>"
+    exit
+}
+
+cat head.htf
 echo "<body>"
 
 if [ "$PARAM_KEY" != "title" ] ; then
     echo "<p><b><font color=\"red\">Insufficient parameters.</font></b></p>"
-    echo "</body>"
-    echo "</html>"
-    exit
+    output_close_and_exit
 fi
 
 INPUT_STR=`echo ${PARAM_VAL} | nkf --url-input | tr "A-Z" "a-z" | sed 's/+/ /g'`
@@ -61,9 +36,7 @@ echo "<!-- input string = ${INPUT_STR} -->"
 
 if [ "$INPUT_STR" = "" ] ; then
     echo "<p><b><font color=\"red\">Information was not input.</font></b></p>"
-    echo "</body>"
-    echo "</html>"
-    exit
+    output_close_and_exit
 fi
 
 
@@ -248,11 +221,10 @@ echo -n "&#009;"
 echo "</textarea>"
 
 
-echo "</body>"
-echo "</html>"
-
 # output history
 tail -n 1 ${HIST_FILE} 2>/dev/null | grep "${DISPLAY_TITLE}" >/dev/null 2>&1
 if [ "${DISPLAY_TITLE}" != "" -a $? -ne 0 ] ; then
     echo -e "${DISPLAY_TITLE}\t${REQUEST_URI}" >> ${HIST_FILE}
 fi
+
+output_close_and_exit
