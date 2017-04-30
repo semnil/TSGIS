@@ -224,7 +224,8 @@ echo "</textarea>"
 # output history
 tail -n 1 ${HIST_FILE} 2>/dev/null | grep "${DISPLAY_TITLE}" >/dev/null 2>&1
 if [ "${DISPLAY_TITLE}" != "" -a $? -ne 0 ] ; then
-    echo -e "${DISPLAY_TITLE}\t${REQUEST_URI}" >> ${HIST_FILE}
+    HIST_TITLE=`echo "${DISPLAY_TITLE}" | sed "s/'/%27/g" | sed 's/"/%22/g'`
+    echo -e "${HIST_TITLE}\t${REQUEST_URI}" >> ${HIST_FILE}
 fi
 
 output_close_and_exit

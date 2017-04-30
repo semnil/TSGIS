@@ -17,12 +17,12 @@ for line in `tac ${HIST_FILE} | awk '!a[$0]++' | head -n 25`
 do
     IFS='	'
     set -- ${line}
-    echo "'<a href=\"$2\">$1</a>',"
+    echo "[\"$2\",\"$1\"],"
 done
 echo "]"
 
 echo "items.forEach(function(value) {"
 echo "var row = table.insertRow(-1);"
 echo "var cell = row.insertCell(-1);"
-echo "cell.innerHTML = value;"
+echo "cell.innerHTML = \"<a href=\\\"\" + value[0] + \"\\\">\" + decodeURI(value[1]) + \"</a>\""
 echo "});"
