@@ -55,10 +55,10 @@ else
 fi
 
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
-URL="${URL}?l=japanese"
+URL="${URL}?cc=JP"
 echo "<!-- steam url = ${URL} -->"
 echo "<!-- steam page status"
-STATUS=`curl -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' 2>/dev/null`
+STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' 2>/dev/null`
 echo ${STATUS}
 echo "-->"
 [ "${STATUS}" != "200" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
