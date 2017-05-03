@@ -64,7 +64,7 @@ echo "-->"
 [ "${STATUS}" != "200" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
 
 # save app id for the steamdb
-APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }'`
+APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }' | tr -d '"'`
 echo "<!-- app_id = ${APP_ID} -->"
 
 # get some params by a steam page
