@@ -122,8 +122,14 @@ if [ "${PRICE_LINE}" != "" ] ; then
     fi
     [ "$ORIGINAL_PRICE" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
 else
-    echo "<p><b><font color=\"red\">Can not open a steamdb page.</font></b></p>"
-    PRICE_STR=${ORIGINAL_PRICE}
+    RESULT=`cat -n ${TMP_PAGE_FILE} | grep "octicon-cloud-download" | grep "Free"`
+    if [ "${RESULT}" != "" ] ; then
+        DB_LINK=""
+        PRICE_STR="Free"
+    else
+        echo "<p><b><font color=\"red\">Can not open a steamdb page.</font></b></p>"
+        PRICE_STR=${ORIGINAL_PRICE}
+    fi
 fi
 
 
