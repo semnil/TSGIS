@@ -150,13 +150,19 @@ if [ "$META_LINK" = "" ] ; then
         URL=`echo ${METACRITIC_STR}/search/game/${QUERY}/results | sed -E 's/\++/%20/g'`
         echo "<!-- metacritic search query = ${QUERY} -->"
         curl "${URL}" -XPOST -H "${UA_OPTION}" --data "search_term=${QUERY}&search_filter=game" 2>/dev/null > ${TMP_PAGE_FILE}
-        URL=${METACRITIC_STR}`cat ${TMP_PAGE_FILE} | grep "product_title basic_stat" | head -n 1 | sed 's/^.* href="//g' | sed 's/".*$//g'`
-        META_LINK="\"$URL\""
-        echo "<!-- metacritic url = ${URL} -->"
-        echo "<!-- metacritic page status"
-        STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
-        echo ${STATUS}
-        echo "-->"
+        RESULT=`cat ${TMP_PAGE_FILE} | grep "product_title basic_stat" | head -n 1 | sed 's/^.* href="//g' | sed 's/".*$//g'`
+        if [ "${RESULT}" != "" ] ; then
+            URL=${METACRITIC_STR}${RESULT}
+            META_LINK="\"$URL\""
+            echo "<!-- metacritic url = ${URL} -->"
+            echo "<!-- metacritic page status"
+            STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
+            echo ${STATUS}
+            echo "-->"
+        else
+            META_LINK=""
+            METASCORE_STR="-"
+        fi
     fi
 else
     URL=`echo ${META_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
