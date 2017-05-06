@@ -149,7 +149,6 @@ if [ "$META_LINK" = "" ] ; then
         QUERY=`echo ${META_TITLE} | sed -E 's/-+/+/g'`
         URL=`echo ${METACRITIC_STR}/search/game/${QUERY}/results | sed -E 's/\++/%20/g'`
         echo "<!-- metacritic search query = ${QUERY} -->"
-        echo "<!-- metacritic search url = ${URL} -->"
         curl "${URL}" -XPOST -H "${UA_OPTION}" --data "search_term=${QUERY}&search_filter=game" 2>/dev/null > ${TMP_PAGE_FILE}
         URL=${METACRITIC_STR}`cat ${TMP_PAGE_FILE} | grep "product_title basic_stat" | head -n 1 | sed 's/^.* href="//g' | sed 's/".*$//g'`
         META_LINK="\"$URL\""
