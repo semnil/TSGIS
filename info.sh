@@ -146,7 +146,7 @@ if [ "$META_LINK" = "" ] ; then
 
     if [ "${STATUS}" != "200" ] ; then
         # search a metacritic page
-        QUERY=`echo ${META_TITLE} | sed -E 's/-+/+/g'`
+        QUERY=`echo ${DISPLAY_TITLE} | tr "A-Z" "a-z" | sed -E 's/:.*$//g' | sed -E 's/[^a-zA-Z0-9!-.:-@¥[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:'\?\.&,\/]|-$|-dx$)//g" | sed -E 's/-+/+/g'`
         URL=`echo ${METACRITIC_STR}/search/game/${QUERY}/results | sed -E 's/\++/%20/g'`
         echo "<!-- metacritic search query = ${QUERY} -->"
         curl "${URL}" -XPOST -H "${UA_OPTION}" --data "search_term=${QUERY}&search_filter=game" 2>/dev/null > ${TMP_PAGE_FILE}
