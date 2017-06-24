@@ -58,7 +58,7 @@ URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 URL="${URL}?cc=JP"
 echo "<!-- steam url = ${URL} -->"
 echo "<!-- steam page status"
-STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -b mature_content=1 -b birthtime=444927601 2>/dev/null`
+STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
 echo ${STATUS}
 echo "-->"
 [ "${STATUS}" != "200" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
@@ -75,7 +75,7 @@ if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
     URL="${URL}?cc=us"
     echo "<!-- steam url = ${URL} (avoid the OMAKUNI) -->"
     echo "<!-- steam page status"
-    STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' -b timezoneOffset=32400,0 ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -b mature_content=1 -b birthtime=444927601 2>/dev/null`
+    STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
     echo ${STATUS}
     echo "-->"
     DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
