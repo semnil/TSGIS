@@ -83,7 +83,7 @@ if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
 fi
 echo "<!-- display title = ${DISPLAY_TITLE} -->"
 [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
-DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/日//g'`
+DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日//g' | sed 's/<.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/\/$//g'`
 
 GENRE=`cat ${TMP_PAGE_FILE} | grep "\/genre\/" | grep -v "popup_menu_item" | tail -n 1 | sed 's/<[^a\"]*> *//g' | sed 's/<[^>]*>//g' | tr -d "[:blank:]"`
 GENRE=`echo ${GENRE} | sed 's/カジュアル//g' | sed 's/独立系開発会社//g' | sed 's/早期アクセス//g' | sed 's/MM（MassivelyMultiplayer）//g' | sed 's/アクションRPG/ARPG/g' | sed 's/シミュレーションRPG/SRPG/g' | sed 's/ハックアンドスラッシュ/ハクスラ/g' | sed 's/アクション/ACT/g' | sed 's/シューティング/STG/g' | tr -d '\r' | sed -E 's/,+/,/g' | sed -E 's/(^,|,$)//g' | sed 's/,/\//g'`
