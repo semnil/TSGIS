@@ -49,7 +49,7 @@ elif echo ${INPUT_STR} | grep '^http:\/\/store.steampowered.com\/app\/[0-9]\+' >
     STEAM_LINK=\"`echo ${INPUT_STR} | sed -e 's/\?[^\/]*$//g'`\"
 else
     # search a steam page by the google
-    QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g'`
+    QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/://g' | sed 's/ /+/g' | sed 's/%/%25/g' | sed 's/!/\\!/g'`
     echo "<!-- steam search query = $QUERY -->"
     STEAM_LINK=`curl "${GOOGLE_SEARCH_STR}site:store.steampowered.com+${QUERY}" 2>/dev/null | jq '.items[].link' | grep "store.steampowered.com/app/" | head -n 1 | sed 's/\?.*"/"/g'`
 fi
