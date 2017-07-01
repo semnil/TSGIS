@@ -13,7 +13,7 @@ echo ""
 echo "var table = document.getElementById('hist');"
 echo "var items = ["
 IFS=$'\n'
-for line in `tac ${HIST_FILE} 2>/dev/null | awk '!a[$0]++' | head -n 25`
+for line in `tac ${HIST_FILE} 2>/dev/null | awk '!a[$1]++' | head -n 25`
 do
     IFS='	'
     set -- ${line}
