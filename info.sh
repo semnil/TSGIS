@@ -91,6 +91,7 @@ GENRE=`echo ${GENRE} | sed 's/カジュアル//g' | sed 's/独立系開発会社
 REVIEWS=`cat ${TMP_PAGE_FILE} | grep "game_review_summary" | grep "description" | tail -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
 echo ${REVIEWS} | grep "ユーザーレビュー" >/dev/null 2>&1 && REVIEWS=""
 DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
+DEVELOPER_LINK=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/.*href=//g' | sed 's/>.*//g'`
 META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | grep "href=" | sed 's/.*href=//g' | sed 's/ target=.*//g'`
 
 if [ "`cat ${TMP_PAGE_FILE} | grep -v "bundle_base_discount" | grep 'class="discount_original_price"'`" == "" ] ; then
@@ -200,13 +201,6 @@ else
 fi
 
 
-if [ "$DEVELOPER" != "" ] ; then
-    # search a developer site by the google
-    QUERY=`echo ${DEVELOPER} | sed 's/&amp;/%26/g' | sed 's/ /+/g' | sed 's/\++/+/g'`
-    #echo "<!-- developer query = ${QUERY} -->"
-    #DEVELOPER_LINK=`curl -L "${GOOGLE_SEARCH_STR}${QUERY}" 2>/dev/null | jq '.items[].link' | grep -v "steampowered" | grep -v "wikipedia" | grep -v "twitter" | grep -v "kickstarter" | grep -v "youtube" | head -n 1`
-fi
-
 rm -rf ${TMP_PAGE_FILE}
 
 
@@ -230,7 +224,7 @@ echo "<td>$GENRE</td>"
 [ "$META_LINK" != "" ] && echo "<td><a href=$META_LINK>$METASCORE_STR</a></td>" || echo "<td>$METASCORE_STR</td>"
 echo "<td>$REVIEWS</td>"
 [ "$DB_LINK" != "" ] && echo "<td><a href=$DB_LINK>$PRICE_STR</a></td>" || echo "<td>$PRICE_STR</td>"
-[ "$DEVELOPER" == "" ] && echo "<td></td>" || echo "<td>$DEVELOPER</td>"
+[ "$DEVELOPER" != "" ] && echo "<td><a href=$DEVELOPER_LINK>$DEVELOPER</a></td>" || echo "<td></td>"
 echo "</tr>"
 
 echo "</table>"
@@ -245,7 +239,7 @@ echo -n "&#009;"
 echo -n "&#009;$REVIEWS"
 echo -n "&#009;"
 [ "$DB_LINK" != "" ] && echo -n "=HYPERLINK($DB_LINK;\"$PRICE_STR\")"
-[ "$DEVELOPER" != "" ] && echo -n "&#009;$DEVELOPER"
+[ "$DEVELOPER" != "" ] && echo -n "&#009;=HYPERLINK($DEVELOPER_LINK;\"$DEVELOPER\")"
 echo "</textarea>"
 
 
