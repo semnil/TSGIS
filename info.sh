@@ -61,7 +61,10 @@ echo "<!-- steam page status"
 STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
 echo ${STATUS}
 echo "-->"
-[ "${STATUS}" != "200" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
+if [ "${STATUS}" != "200" ] ; then
+    echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
+    output_close_and_exit
+fi
 
 # save app id for the steamdb
 APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }' | tr -d '"'`
