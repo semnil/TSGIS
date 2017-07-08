@@ -82,7 +82,9 @@ if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
     echo ${STATUS}
     echo "-->"
     DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
-    [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] || echo "<p><b><font color=\"red\">This page have OMAKUNI in Japan.</font></b></p>"
+    if [ "${STATUS}" != "200" -o "$DISPLAY_TITLE" != "" ] ; then
+        echo "<p><b><font color=\"red\">This page have OMAKUNI in Japan.</font></b></p>"
+    fi
 fi
 echo "<!-- display title = ${DISPLAY_TITLE} -->"
 [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
