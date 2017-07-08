@@ -248,6 +248,7 @@ echo "</textarea>"
 tail -n 1 ${HIST_FILE} 2>/dev/null | grep "${DISPLAY_TITLE}" >/dev/null 2>&1
 if [ "${DISPLAY_TITLE}" != "" -a $? -ne 0 ] ; then
     HIST_TITLE=`echo "${DISPLAY_TITLE}" | sed "s/'/%27/g" | sed 's/"/%22/g'`
+    REQUEST_URI=`echo ${REQUEST_URI} | sed "s/info\.sh.*/info.sh?title=${APP_ID}/g"`
     echo -e "${HIST_TITLE}\thttps://${SERVER_NAME}${REQUEST_URI}" >> ${HIST_FILE}
 fi
 
