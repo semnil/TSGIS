@@ -8,7 +8,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
 HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
-GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q="
+GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q=allintitle%3A+"
 UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
 METACRITIC_STR="http://www.metacritic.com"
 
