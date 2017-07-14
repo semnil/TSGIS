@@ -53,7 +53,7 @@ else
     echo "<!-- steam search query = $QUERY -->"
     SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}+site%3Astore.steampowered.com"
     SEARCH_RESULT=`curl "${SEARCH_URL}" 2>/dev/null`
-    STEAM_LINK=`echo "${SEARCH_RESULT}" | jq '.items[].link' | head -n 1 | sed 's/\?.*"/"/g'`
+    STEAM_LINK=`echo "${SEARCH_RESULT}" | jq '.items[].link' | grep 'http:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/\?.*"/"/g'`
 fi
 
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
