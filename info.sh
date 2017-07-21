@@ -182,23 +182,6 @@ else
     echo "-->"
 fi
 if [ "${STATUS}" != "200" ] ; then
-    # search a metacritic page from google
-    QUERY=`echo ${DISPLAY_TITLE} | sed -e 's/&amp;//g' | tr "A-Z" "a-z" | sed -E 's/[^a-zA-Z0-9!-.:-@¥[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:'\?\.&,\/]|-$|-dx$)//g" | sed -E 's/-+/+/g'`
-    RESULT=`curl "${GOOGLE_SEARCH_STR}site:www.metacritic.com+${QUERY}" 2>/dev/null | jq '.items[].link' | grep "www.metacritic.com/game/pc/" | head -n 1 | sed 's/\?.*"/"/g'`
-    if [ "${RESULT}" != "" ] ; then
-        META_LINK=${RESULT}
-        URL=`echo ${META_LINK} | tr -d '"'`
-        echo "<!-- metacritic url = ${URL} -->"
-        echo "<!-- metacritic page status"
-        STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
-        echo ${STATUS}
-        echo "-->"
-    else
-        META_LINK=""
-        METASCORE_STR="-"
-    fi
-fi
-if [ "${STATUS}" != "200" ] ; then
     echo "<p><b><font color=\"red\">Can not open a metacritic page.</font></b></p>"
     METASCORE_STR=""
 else
