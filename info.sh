@@ -89,7 +89,9 @@ if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
     fi
 fi
 echo "<!-- display title = ${DISPLAY_TITLE} -->"
-[ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] && echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
+if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
+    echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
+fi
 DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日//g' | sed 's/<.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/\/$//g'`
 
 GENRE=`cat ${TMP_PAGE_FILE} | grep "\/genre\/" | grep -v "popup_menu_item" | tail -n 1 | sed 's/<[^a\"]*> *//g' | sed 's/<[^>]*>//g' | tr -d "[:blank:]"`
