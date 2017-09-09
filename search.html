@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>収集結果</title>
+    <style>
+        table {
+            width: 100%;
+        }
+        td {
+            text-align: center;
+            word-break: break-all;
+        }
+        textarea {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <table id="result" border=1>
+        <tr>
+            <th>タイトル</th>
+            <th>発売日</th>
+            <th>ジャンル</th>
+            <th>メタスコア</th>
+            <th>Steam評価</th>
+            <th>価格(&yen;)</th>
+            <th>開発</th>
+        </tr>
+        <tr>
+            <td>読み込み中...</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    <b>※ ジャンルは参考情報</b><br>
+    <br><label for="output">for spread sheet</label><br>
+    <textarea id="output" cols=1 rows=6 ></textarea><br>
+    <br>
+    <a href="javascript:history.back();">戻る</a>
+</div>
+</body>
+<script type="text/javascript" src="js/search.js"></script>
+</html>
