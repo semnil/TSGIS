@@ -44,7 +44,7 @@ def lambda_handler(event, context):
     completed = datetime.now()
     history = {
         'timestamp': start.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (start.microsecond // 1000),
-        'completed': start.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (start.microsecond // 1000),
+        'completed': completed.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (completed.microsecond // 1000),
         'event': json.dumps(event),
         'result': json.dumps(result)
     }
