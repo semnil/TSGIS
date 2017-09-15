@@ -64,7 +64,7 @@ if cat ${TMP_PAGE_FILE} | grep '"domain": "usageLimits"' >/dev/null 2>&1 ; then
     exit 0
 elif [ "${STATUS}" != "200" ] ; then
     #echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
-    echo "{\"error\":\"Can not open a steam page.\",\"search_result\":\"`cat ${TMP_PAGE_FILE}`\"}"
+    echo "{\"error\":\"Can not open a steam page.\",\"search_result\":`cat ${TMP_PAGE_FILE} | tr -d '\n'`}"
     exit 0
 fi
 
