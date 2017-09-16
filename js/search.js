@@ -45,7 +45,7 @@ if (pairs[0].split('=')[0] === 'title') {
                     text += '\t'
                 }
             });
-            var textArea = document.getElementById("output");
+            var textArea = document.getElementById('output');
             textArea.value = text;
             textArea.onfocus = function() {
                 textArea.select();
