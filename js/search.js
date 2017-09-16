@@ -26,6 +26,7 @@ if (pairs[0].split('=')[0] === 'title') {
                 ['developer', 'developer_url']
             ];
             var text = '';
+            var steamUrl = '';
             var response = this.response;
             keys.forEach(function(value, index) {
                 var cell = row.insertCell(-1);
@@ -45,6 +46,12 @@ if (pairs[0].split('=')[0] === 'title') {
                     text += '\t'
                 }
             });
+            steamUrl = response['steam_url'];
+            var imageURL = steamUrl.replace(/http:\/\/store\.steampowered\.com\/app\//g,
+                'http://cdn.edgecast.steamstatic.com/steam/apps/')
+                .replace(/\/[^\/]*\/$/g, '/header.jpg');
+            document.getElementById('thumbnail-img').innerHTML = '<img href="' +
+                steamUrl + '"><img style="width:324px" src="' + imageURL + '"</img></a><br><br>';
             var textArea = document.getElementById('output');
             textArea.value = text;
             textArea.onfocus = function() {
