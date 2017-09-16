@@ -50,7 +50,7 @@ if (pairs[0].split('=')[0] === 'title') {
             var imageURL = steamUrl.replace(/http:\/\/store\.steampowered\.com\/app\//g,
                 'http://cdn.edgecast.steamstatic.com/steam/apps/')
                 .replace(/\/[^\/]*\/$/g, '/header.jpg');
-            document.getElementById('thumbnail-img').innerHTML = '<img href="' +
+            document.getElementById('thumbnail-img').innerHTML = '<a href="' +
                 steamUrl + '"><img style="width:324px" src="' + imageURL + '"</img></a><br><br>';
             var textArea = document.getElementById('output');
             textArea.value = text;
