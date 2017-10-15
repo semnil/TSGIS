@@ -220,7 +220,9 @@ if [ ${DB_LINK} != "" ] ; then
 else
     echo "\"steamdb_url\":\"\","
 fi
-echo "\"developer\":\"$DEVELOPER\","
+echo -n "\"developer\":\""
+echo -n ${DEVELOPER} | sed -e 's/amp;//g'
+echo "\","
 if [ "$DEVELOPER_LINK" != "" ] ; then
     echo "\"developer_url\":$DEVELOPER_LINK"
 else
