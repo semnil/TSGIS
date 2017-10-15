@@ -227,12 +227,3 @@ else
     echo "\"developer_url\":\"\""
 fi
 echo "}"
-
-
-# output history
-#tail -n 1 ${HIST_FILE} 2>/dev/null | grep "${DISPLAY_TITLE}" >/dev/null 2>&1
-#if [ "${DISPLAY_TITLE}" != "" -a $? -ne 0 ] ; then
-#    HIST_TITLE=`echo "${DISPLAY_TITLE}" | sed "s/'/%27/g" | sed 's/"/%22/g'`
-#    REQUEST_URI=`echo ${REQUEST_URI} | sed "s/info_json\.sh.*/info.sh?title=${APP_ID}/g"`
-#    echo -e "${HIST_TITLE}\thttps://${SERVER_NAME}${REQUEST_URI}\tinfo_json.sh?title=${PARAM_VAL}" >> ${HIST_FILE}
-#fi
