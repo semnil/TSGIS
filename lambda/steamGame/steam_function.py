@@ -9,6 +9,7 @@ import urllib.parse
 from base64 import b64decode
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
+from datetime import timedelta
 
 ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_API_KEY']
 os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode('utf-8')
@@ -23,7 +24,11 @@ def lambda_handler(event, context):
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('historySteamGame')
-    scan = table.scan()
+    reference_time = datetime.now() - timedelta(days=30)
+    scan = table.scan(
+        FilterExpression=Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S') +
+                                              '.%03d' % (reference_time.microsecond // 1000))
+    )
 
     items = map(lambda x:{'event': json.loads(x['event']),\
         'result': json.loads(x['result'])}, scan['Items'])

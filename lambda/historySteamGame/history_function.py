@@ -4,12 +4,18 @@ import boto3
 import json
 
 from boto3.dynamodb.conditions import Key, Attr
+from datetime import datetime
+from datetime import timedelta
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('historySteamGame')
 
-    scan = table.scan()
+    reference_time = datetime.now() - timedelta(days=30)
+    scan = table.scan(
+        FilterExpression=Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S') +
+                                              '.%03d' % (reference_time.microsecond // 1000))
+    )
 
     items = [{'timestamp': x['timestamp'],
             'result': json.loads(x['result']),
