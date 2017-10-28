@@ -13,14 +13,14 @@ def lambda_handler(event, context):
 
     reference_time = datetime.now() - timedelta(days=30)
     scan = table.scan(
-        FilterExpression=Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S') +
-                                              '.%03d' % (reference_time.microsecond // 1000))
+        FilterExpression=Attr('result').contains('steam_url') &
+                         Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S.000'))
     )
 
     items = [{'timestamp': x['timestamp'],
-            'result': json.loads(x['result']),
-            'event': json.loads(x['event'])}\
-        for x in scan['Items'] if 'result' in x and 'error' not in json.loads(x['result'])]
+              'result': json.loads(x['result']),
+              'event': json.loads(x['event'])} \
+             for x in scan['Items']]
     items2 = sorted(list({v['result']['title']:v for v in items}.values()),
                     key=lambda x:x['timestamp'],
                     reverse=True)

@@ -26,8 +26,8 @@ def lambda_handler(event, context):
     table = dynamodb.Table('historySteamGame')
     reference_time = datetime.now() - timedelta(days=30)
     scan = table.scan(
-        FilterExpression=Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S') +
-                                              '.%03d' % (reference_time.microsecond // 1000))
+        FilterExpression=Attr('result').contains('steam_url') &
+                         Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S.000'))
     )
 
     items = map(lambda x:{'event': json.loads(x['event']),
