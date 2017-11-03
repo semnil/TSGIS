@@ -21,11 +21,12 @@ def lambda_handler(event, context):
               'result': json.loads(x['result']),
               'event': json.loads(x['event'])} \
              for x in scan['Items']]
+    titles = [x['result']['title'] for x in items]
     items2 = sorted(list({v['result']['title']:v for v in items}.values()),
                     key=lambda x:x['timestamp'],
                     reverse=True)
     histories = [('./search.html?title=' + y['event']['queryStringParameters']['title'],
-        y['result']['title']) for y in items2]
+                  y['result']['title'], titles.count(y['result']['title'])) for y in items2]
 
     return {
         'isBase64Encoded': False,
