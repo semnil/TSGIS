@@ -29,6 +29,17 @@ def lambda_handler(event, context):
         FilterExpression=Attr('result').contains('steam_url') &
                          Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S.000'))
     )
+    if 'LastEvaluatedKey' in scan:
+        next_scan = {'LastEvaluatedKey': scan['LastEvaluatedKey']}
+    else:
+        next_scan = {}
+    while 'LastEvaluatedKey' in next_scan:
+        next_scan = table.scan(
+            FilterExpression=Attr('result').contains('steam_url') &
+                             Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S.000')),
+            ExclusiveStartKey=scan['LastEvaluatedKey']
+        )
+        scan['Items'].extend(next_scan['Items'])
 
     items = map(lambda x:{'event': json.loads(x['event']),
                           'result': json.loads(x['result'])}, scan['Items'])
