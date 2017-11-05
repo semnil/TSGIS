@@ -6,7 +6,7 @@ xhr.onreadystatechange = function() {
         var items = this.response;
         items.forEach(function(value) {
             var fontSize = (value[2] * 10 + 100) <= 200 ? (value[2] * 10 + 100) : 200;
-            hist.innerHTML += "&nbsp;&nbsp;<a href=\"" + value[0] + "\" style=\"font-size:" + fontSize + "%\">" + decodeURI(value[1]) + "</a>"
+            hist.innerHTML += "&nbsp;&nbsp;<a href=\"" + value[0] + "\" style=\"font-size:" + fontSize + "%;white-space:nowrap\">" + decodeURI(value[1]) + "</a></span> "
         });
     }
 };
