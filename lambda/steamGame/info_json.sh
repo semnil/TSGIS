@@ -122,14 +122,17 @@ fi
 DB_LINK="\"https://steamdb.info/app/${APP_ID}/?cc=jp\""
 #echo "<!-- steamdb url = ${DB_LINK} -->"
 curl -b cc=jp -L "https://steamdb.info/app/${APP_ID}/" 2>/dev/null > ${TMP_PAGE_FILE}
-PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
+PRICE_BLOCK=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ print $1 }'`
+PRICE_LINE=`expr ${PRICE_BLOCK} + 6`
 if [ "${PRICE_LINE}" != "" ] ; then
-    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed 's/.*">¥ *//g' | sed 's/ *at.*//g' | sed 's/<\/.*//g'`
+    LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed 's/.*">¥ *//g' | sed 's/ *at.*//g' | sed 's/<\/.*//g'`
     if [ "$LOW_PRICE" = "" -a "$ORIGINAL_PRICE" = "" ] ; then
         #echo "<!-- get USD price -->"
-        PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="us"' | awk '{ print $1 }'`
-        ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep "\\\\$" | head -n 1 | sed -e 's/<[^>]*>//g' | tr -d ' '`
-        LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 6 | grep 'title' | sed -e 's/<[^>]*>//g' | sed -e 's/at.*//g' | tr -d ' '`
+        PRICE_BLOCK=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="us"' | awk '{ print $1 }'`
+        PRICE_LINE=`expr ${PRICE_BLOCK} + 3`
+        ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | tr -d ' '`
+        PRICE_LINE=`expr ${PRICE_BLOCK} + 7`
+        LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | sed -e 's/at.*//g' | tr -d ' '`
     elif [ "$LOW_PRICE" = "" ] ; then
         LOW_PRICE=${ORIGINAL_PRICE}
     fi
