@@ -20,7 +20,7 @@ PARAM_VAL=`echo ${PARAMS[0]} | awk 'BEGIN { FS="=" ; } { print $2 }'`
 #echo "Content-type: application/json; charset=utf-8"
 #echo ""
 
-if [ "$PARAM_KEY" != "title" ] ; then
+if [ "${PARAM_KEY}" != "title" ] ; then
     #echo "<p><b><font color=\"red\">Insufficient parameters.</font></b></p>"
     echo "{\"error\":\"Insufficient parameters.\"}"
     exit 0
@@ -29,24 +29,24 @@ fi
 INPUT_STR=`echo ${PARAM_VAL} | python uridecode.py | tr "A-Z" "a-z" | sed 's/+/ /g'`
 #echo "<!-- input string = ${INPUT_STR} -->"
 
-if [ "$INPUT_STR" = "" ] ; then
+if [ "${INPUT_STR}" = "" ] ; then
     #echo "<p><b><font color=\"red\">Information was not input.</font></b></p>"
     echo "{\"error\":\"Information was not input.\"}"
     exit 0
 fi
 
 
-expr "$INPUT_STR" + 1 >/dev/null 2>&1
+expr "${INPUT_STR}" + 1 >/dev/null 2>&1
 if [ $? -lt 2 ] ; then
     # make link url from AppId
-    STEAM_LINK="\"http://store.steampowered.com/app/$INPUT_STR/\""
+    STEAM_LINK="\"http://store.steampowered.com/app/${INPUT_STR}/\""
 elif echo ${INPUT_STR} | grep '^http:\/\/store.steampowered.com\/app\/[0-9]\+' >/dev/null 2>&1 ; then
     # input steam url
     STEAM_LINK=\"`echo ${INPUT_STR} | sed -e 's/\?[^\/]*$//g'`\"
 else
     # search a steam page by the google
     QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/　/ /g' | sed 's/ /+/g' | sed 's/:/%3A/g' | sed 's/&/%26/g' | sed 's/!/\\!/g' | sed 's/%20/+/g'`
-    #echo "<!-- steam search query = $QUERY -->"
+    #echo "<!-- steam search query = ${QUERY} -->"
     SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}+on+steam"
     curl "${SEARCH_URL}" -o ${TMP_PAGE_FILE} 2>/dev/null
     STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'http:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g'`
@@ -74,7 +74,7 @@ APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }' | tr -d '"'`
 
 # get some params by a steam page
 DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
-if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
+if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
     # avoid the OMAKUNI
     URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
     URL="${URL}?cc=us"
@@ -84,12 +84,12 @@ if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
     #echo ${STATUS}
     #echo "-->"
     DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
-    #if [ "${STATUS}" != "200" -o "$DISPLAY_TITLE" != "" ] ; then
+    #if [ "${STATUS}" != "200" -o "${DISPLAY_TITLE}" != "" ] ; then
     #    echo "<p><b><font color=\"red\">This page have OMAKUNI in Japan.</font></b></p>"
     #fi
 fi
 #echo "<!-- display title = ${DISPLAY_TITLE} -->"
-if [ "${STATUS}" == "200" -a "$DISPLAY_TITLE" = "" ] ; then
+if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
     #echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
     echo "{\"error\":\"Can not open a steam page.\"}"
     exit 0
@@ -109,7 +109,7 @@ META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | grep "href=" | sed
 if [ "`cat ${TMP_PAGE_FILE} | grep -v "bundle_base_discount" | grep 'class="discount_original_price"'`" == "" ] ; then
     # not discounted
     PRICE_LINE=`cat -n ${TMP_PAGE_FILE} | grep 'class="game_purchase_price' | head -n 1 | awk '{ print $1 }'`
-    if [ "$PRICE_LINE" != "" ] ; then
+    if [ "${PRICE_LINE}" != "" ] ; then
         PRICE_LINE_STR=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥"`
         ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 3 | grep "¥" | sed -e 's/.*¥ //g' | sed -e 's/[^0-9]*//g' | tr -d ','`
     fi
@@ -126,17 +126,17 @@ PRICE_BLOCK=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ pri
 PRICE_LINE=`expr ${PRICE_BLOCK} + 6`
 if [ "${PRICE_LINE}" != "" ] ; then
     LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed 's/.*">¥ *//g' | sed 's/ *at.*//g' | sed 's/<\/.*//g'`
-    if [ "$LOW_PRICE" = "" -a "$ORIGINAL_PRICE" = "" ] ; then
+    if [ "${LOW_PRICE}" = "" -a "${ORIGINAL_PRICE}" = "" ] ; then
         #echo "<!-- get USD price -->"
         PRICE_BLOCK=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="us"' | awk '{ print $1 }'`
         PRICE_LINE=`expr ${PRICE_BLOCK} + 3`
         ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | tr -d ' '`
         PRICE_LINE=`expr ${PRICE_BLOCK} + 7`
         LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | sed -e 's/at.*//g' | tr -d ' '`
-    elif [ "$LOW_PRICE" = "" ] ; then
+    elif [ "${LOW_PRICE}" = "" ] ; then
         LOW_PRICE=${ORIGINAL_PRICE}
     fi
-    [ "$ORIGINAL_PRICE" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
+    [ "${ORIGINAL_PRICE}" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
 else
     RESULT=`cat -n ${TMP_PAGE_FILE} | grep "octicon-cloud-download" | grep "Free"`
     if [ "${RESULT}" != "" ] ; then
@@ -149,11 +149,11 @@ else
 fi
 
 
-if [ "$META_LINK" = "" ] ; then
+if [ "${META_LINK}" = "" ] ; then
     META_TITLE=`echo ${DISPLAY_TITLE} | sed -e 's/&amp;//g' | tr "A-Z" "a-z" | sed -E 's/[^a-zA-Z0-9!-.:-@¥[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:'\?\.&,\/]|-$|-dx$)//g"`
     # generate a metacritic page URL from title
-    URL="http://www.metacritic.com/game/pc/$META_TITLE"
-    META_LINK="\"$URL\""
+    URL="http://www.metacritic.com/game/pc/${META_TITLE}"
+    META_LINK="\"${URL}\""
     #echo "<!-- metacritic url = ${URL} -->"
     #echo "<!-- metacritic page status"
     STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
@@ -169,7 +169,7 @@ if [ "$META_LINK" = "" ] ; then
         RESULT=`cat ${TMP_PAGE_FILE} | grep "product_title basic_stat" | head -n 1 | sed 's/^.* href="//g' | sed 's/".*$//g'`
         if [ "${RESULT}" != "" ] ; then
             URL=${METACRITIC_STR}${RESULT}
-            META_LINK="\"$URL\""
+            META_LINK="\"${URL}\""
             #echo "<!-- metacritic url = ${URL} -->"
             #echo "<!-- metacritic page status"
             STATUS=`curl -L ${URL} -H "${UA_OPTION}" -o ${TMP_PAGE_FILE}  -w '%{http_code}\n' 2>/dev/null`
@@ -207,26 +207,26 @@ echo "{"
 echo -n "\"title\":\""
 echo -n ${DISPLAY_TITLE} | sed -e 's/amp;//g'
 echo "\","
-echo "\"steam_url\":$STEAM_LINK,"
-echo "\"date\":\"$DATE\","
-echo "\"genre\":\"$GENRE\","
-echo "\"metascore\":\"$METASCORE_STR\","
-if [ ${META_LINK} != "" ] ; then
-    echo "\"metacritics_url\":$META_LINK,"
+echo "\"steam_url\":${STEAM_LINK},"
+echo "\"date\":\"${DATE}\","
+echo "\"genre\":\"${GENRE}\","
+echo "\"metascore\":\"${METASCORE_STR}\","
+if [ "${META_LINK}" != "" ] ; then
+    echo "\"metacritics_url\":${META_LINK},"
 else
     echo "\"metacritics_url\":\"\","
 fi
-echo "\"reviews\":\"$REVIEWS\","
-echo "\"price\":\"$PRICE_STR\","
-if [ ${DB_LINK} != "" ] ; then
-    echo "\"steamdb_url\":$DB_LINK,"
+echo "\"reviews\":\"${REVIEWS}\","
+echo "\"price\":\"${PRICE_STR}\","
+if [ "${DB_LINK}" != "" ] ; then
+    echo "\"steamdb_url\":${DB_LINK},"
 else
     echo "\"steamdb_url\":\"\","
 fi
 echo -n "\"developer\":\""
 echo -n ${DEVELOPER} | sed -e 's/amp;//g'
 echo "\","
-if [ "$DEVELOPER_LINK" != "" ] ; then
+if [ "${DEVELOPER_LINK}" != "" ] ; then
     echo "\"developer_url\":$DEVELOPER_LINK"
 else
     echo "\"developer_url\":\"\""
