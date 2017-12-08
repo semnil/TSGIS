@@ -26,7 +26,11 @@ if [ "${PARAM_KEY}" != "title" ] ; then
     exit 0
 fi
 
-INPUT_STR=`echo ${PARAM_VAL} | python uridecode.py | tr "A-Z" "a-z" | sed 's/+/ /g'`
+if [ "${IS_LAMBDA}" != "" ] ; then
+    INPUT_STR=`echo ${PARAM_VAL} | python uridecode.py | tr "A-Z" "a-z" | sed 's/+/ /g'`
+else
+    INPUT_STR=`echo ${PARAM_VAL} | nkf --url-input -W | tr "A-Z" "a-z" | sed 's/+/ /g'`
+fi
 #echo "<!-- input string = ${INPUT_STR} -->"
 
 if [ "${INPUT_STR}" = "" ] ; then
