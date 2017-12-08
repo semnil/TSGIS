@@ -47,13 +47,14 @@ def lambda_handler(event, context):
     histories = [y for y in items \
         if 'error' not in y['result'] and \
             (y['event']['queryStringParameters']['title'] == event['queryStringParameters']['title'] or
-             y['result']['title'] == urllib.parse.unquote(event['queryStringParameters']['title']))]
+             y['result']['title'] == urllib.parse.unquote(event['queryStringParameters']['title'], encoding='utf-8'))]
 
     if len(histories) == 0 or \
         ('cache' in event['queryStringParameters'] and
                  event['queryStringParameters']['cache'] == 'no'):
         os.environ['REQUEST_URI'] = 'info_json.sh?title=' \
-            + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+')
+            + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+', encoding='utf-8')
+        json_string = ""
         try:
             json_string = _(['./info_json.sh'])
             result = json.loads(json_string)
