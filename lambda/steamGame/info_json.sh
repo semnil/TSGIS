@@ -8,7 +8,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
 HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
-GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q=allintitle%3A+"
+GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q=allintitle%3A+steam+%3A+"
 UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
 METACRITIC_STR="http://www.metacritic.com"
 
@@ -51,9 +51,9 @@ else
     # search a steam page by the google
     QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/　/ /g' | sed 's/ /+/g' | sed 's/:/%3A/g' | sed 's/&/%26/g' | sed 's/!/\\!/g' | sed 's/%20/+/g'`
     #echo "<!-- steam search query = ${QUERY} -->"
-    SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}+on+steam"
+    SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}"
     curl "${SEARCH_URL}" -o ${TMP_PAGE_FILE} 2>/dev/null
-    STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'http:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g'`
+    STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'http:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g' | sed 's/?.*"$/"/g'`
 fi
 
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
