@@ -11,10 +11,8 @@ def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('historySteamGame')
 
-    reference_time = datetime.now() - timedelta(days=30)
     scan = table.scan(
-        FilterExpression=Attr('result').contains('steam_url') &
-                         Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S.000'))
+        FilterExpression=Attr('is_error').ne(True)
     )
     if 'LastEvaluatedKey' in scan:
         next_scan = {'LastEvaluatedKey': scan['LastEvaluatedKey']}
@@ -22,8 +20,7 @@ def lambda_handler(event, context):
         next_scan = {}
     while 'LastEvaluatedKey' in next_scan:
         next_scan = table.scan(
-            FilterExpression=Attr('result').contains('steam_url') &
-                             Attr('timestamp').gt(reference_time.strftime('%Y/%m/%d %H:%M:%S.000')),
+            FilterExpression=Attr('is_error').ne(True),
             ExclusiveStartKey=scan['LastEvaluatedKey']
         )
         scan['Items'].extend(next_scan['Items'])
