@@ -154,7 +154,7 @@ fi
 
 
 if [ "${META_LINK}" = "" ] ; then
-    META_TITLE=`echo ${DISPLAY_TITLE} | sed -e 's/&amp;//g' | tr "A-Z" "a-z" | sed -E 's/[^a-zA-Z0-9!-.:-@¥[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:'\?\.&,\/]|-$|-dx$)//g"`
+    META_TITLE=`echo ${DISPLAY_TITLE} | sed -e 's/&amp;//g' | sed -e 's/’//g' | tr "A-Z" "a-z" | sed -E 's/[^a-zA-Z0-9!-.:-@\[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:'\?\.&,\/]|-$|-dx$)//g"`
     # generate a metacritic page URL from title
     URL="http://www.metacritic.com/game/pc/${META_TITLE}"
     META_LINK="\"${URL}\""
