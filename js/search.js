@@ -47,9 +47,11 @@ if (pairs[0].split('=')[0] === 'title') {
                 }
             });
             steamUrl = response['steam_url'];
-            var imageURL = steamUrl.replace(/http:\/\/store\.steampowered\.com\/app\//g,
-                'http://cdn.edgecast.steamstatic.com/steam/apps/')
-                .replace(/\/?[^\/]*[^\/0-9]+[^\/]*\/$/g, '/header.jpg');
+            var imageURL = steamUrl.replace(/(http|https):\/\/store\.steampowered\.com\/app\//g,
+                'http://steamcdn-a.akamaihd.net/steam/apps/')
+                .replace(/\/?[^\/]*[^\/0-9]+[^\/]*\/?$/g, '/header.jpg');
+            if (imageURL.indexOf('header.jpg') === -1)
+                imageURL += 'header.jpg';
             document.getElementById('thumbnail-img').innerHTML = '<a href="' +
                 steamUrl + '"><img style="width:324px" src="' + imageURL + '"</img></a><br><br>';
             var textArea = document.getElementById('output');

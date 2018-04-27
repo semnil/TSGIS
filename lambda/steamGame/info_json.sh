@@ -43,8 +43,8 @@ fi
 expr "${INPUT_STR}" + 1 >/dev/null 2>&1
 if [ $? -lt 2 ] ; then
     # make link url from AppId
-    STEAM_LINK="\"http://store.steampowered.com/app/${INPUT_STR}/\""
-elif echo ${INPUT_STR} | grep '^http:\/\/store.steampowered.com\/app\/[0-9]\+' >/dev/null 2>&1 ; then
+    STEAM_LINK="\"https://store.steampowered.com/app/${INPUT_STR}/\""
+elif echo ${INPUT_STR} | grep '^https:\/\/store.steampowered.com\/app\/[0-9]\+' >/dev/null 2>&1 ; then
     # input steam url
     STEAM_LINK=\"`echo ${INPUT_STR} | sed -e 's/\?[^\/]*$//g'`\"
 else
@@ -53,14 +53,14 @@ else
     #echo "<!-- steam search query = ${QUERY} -->"
     SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}"
     curl "${SEARCH_URL}" -o ${TMP_PAGE_FILE} 2>/dev/null
-    STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'http:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g' | sed 's/?.*"$/"/g'`
+    STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'https:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g' | sed 's/?.*"$/"/g'`
 fi
 
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
 URL="${URL}?cc=JP"
 #echo "<!-- steam url = ${URL} -->"
 #echo "<!-- steam page status"
-STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
+STATUS=`curl -L -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
 #echo ${STATUS}
 #echo "-->"
 if cat ${TMP_PAGE_FILE} | grep '"domain": "usageLimits"' >/dev/null 2>&1 ; then
@@ -100,7 +100,7 @@ if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
 fi
 DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日//g' | sed 's/<.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/\/$//g'`
 
-GENRE=`cat ${TMP_PAGE_FILE} | grep "http:\/\/store.steampowered.com\/genre\/" | grep -v "popup_menu_item" | tail -n 1 | sed 's/<[^a\"]*> *//g' | sed 's/<[^>]*>//g' | tr -d "[:blank:]"`
+GENRE=`cat ${TMP_PAGE_FILE} | grep ":\/\/store.steampowered.com\/genre\/" | grep -v "popup_menu_item" | tail -n 1 | sed 's/<[^a\"]*> *//g' | sed 's/<[^>]*>//g' | tr -d "[:blank:]"`
 GENRE=`echo ${GENRE} | sed 's/カジュアル//g' | sed 's/独立系開発会社//g' | sed 's/早期アクセス//g' | sed 's/MM（MassivelyMultiplayer）//g' | sed 's/アクションRPG/ARPG/g' | sed 's/シミュレーションRPG/SRPG/g' | sed 's/ハックアンドスラッシュ/ハクスラ/g' | sed 's/アクション/ACT/g' | sed 's/シューティング/STG/g' | tr -d '\r' | sed -E 's/,+/,/g' | sed -E 's/(^,|,$)//g' | sed 's/,/\//g' | sed 's/ACT\/RPG/ARPG/g'`
 [ "${GENRE}" == "" ] && GENRE="ACT"
 
