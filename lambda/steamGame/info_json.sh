@@ -106,11 +106,11 @@ GENRE=`echo ${GENRE} | sed 's/カジュアル//g' | sed 's/独立系開発会社
 
 REVIEWS=`cat ${TMP_PAGE_FILE} | grep "game_review_summary" | grep "description" | tail -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
 echo ${REVIEWS} | grep "ユーザーレビュー" >/dev/null 2>&1 && REVIEWS=""
-DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
-DEVELOPER_LINK=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/.*href=//g' | sed 's/>.*//g'`
+DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/[^,]*\">//g' | sed 's/<.*//g'`
+DEVELOPER_LINK=`cat ${TMP_PAGE_FILE} | grep "?developer=" | head -n 1 | sed 's/[^,]*href=//g' | sed 's/>.*//g'`
 if [ "${DEVELOPER}" = "" ] ; then
-    DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "/developer/" | head -n 1 | sed 's/.*\">//g' | sed 's/<.*//g'`
-    DEVELOPER_LINK=`cat ${TMP_PAGE_FILE} | grep "/developer/" | head -n 1 | sed 's/.*href=//g' | sed 's/>.*//g'`
+    DEVELOPER=`cat ${TMP_PAGE_FILE} | grep "/developer/" | head -n 1 | sed 's/[^,]*\">//g' | sed 's/<.*//g'`
+    DEVELOPER_LINK=`cat ${TMP_PAGE_FILE} | grep "/developer/" | head -n 1 | sed 's/[^,]*href=//g' | sed 's/>.*//g'`
 fi
 META_LINK=`cat ${TMP_PAGE_FILE} | grep "game_area_metalink" | grep "href=" | sed 's/.*href=//g' | sed 's/ target=.*//g'`
 
