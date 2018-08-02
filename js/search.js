@@ -48,7 +48,7 @@ if (pairs[0].split('=')[0] === 'title') {
             });
             steamUrl = response['steam_url'];
             var imageURL = steamUrl.replace(/(http|https):\/\/store\.steampowered\.com\/app\//g,
-                'http://steamcdn-a.akamaihd.net/steam/apps/')
+                'https://steamcdn-a.akamaihd.net/steam/apps/')
                 .replace(/\/?[^\/]*[^\/0-9]+[^\/]*\/?$/g, '/header.jpg');
             if (imageURL.indexOf('header.jpg') === -1)
                 imageURL += 'header.jpg';
