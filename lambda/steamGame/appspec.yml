@@ -1,9 +1,0 @@
-version: 0.0
-resources:
-  - steamGame:
-      Type: AWS::Lambda::Function
-      Properties:
-        Name: "steamGame"
-        Alias: "steamGame"
-        CurrentVersion: "0"
-        TargetVersion: "1"
