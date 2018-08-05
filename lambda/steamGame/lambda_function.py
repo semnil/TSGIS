@@ -23,7 +23,7 @@ def lambda_handler(event, context):
     start = datetime.now()
 
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('historySteamGame')
+    table = dynamodb.Table(os.environ['TABLE_NAME'])
 
     scan = table.scan(
         FilterExpression=Attr('is_error').ne(True)

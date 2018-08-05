@@ -2,6 +2,7 @@
 
 import boto3
 import json
+import os
 
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
@@ -9,7 +10,7 @@ from datetime import timedelta
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('historySteamGame')
+    table = dynamodb.Table(os.environ['TABLE_NAME'])
 
     scan = table.scan(
         FilterExpression=Attr('is_error').ne(True)
