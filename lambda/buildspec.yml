@@ -16,5 +16,4 @@ phases:
 artifacts:
   type: zip
   files:
-  - sam-template.yaml
   - sam-output.yaml
