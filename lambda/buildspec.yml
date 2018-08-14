@@ -1,0 +1,20 @@
+version: 0.1
+env:
+  parameter-store:
+    AWS_ACCOUNT: "/TSGIS/lambda/AWS_ACCOUNT"
+    AWS_BUCKET: "/TSGIS/lambda/AWS_BUCKET"
+    ENCRYPTED_GOOGLE_API_KEY: "/TSGIS/lambda/ENCRYPTED_GOOGLE_API_KEY"
+    ENCRYPTED_GOOGLE_APP_ID: "/TSGIS/lambda/ENCRYPTED_GOOGLE_APP_ID"
+    KMS_KEY_ARN: "/TSGIS/lambda/KMS_KEY_ARN"
+    LAMBDA_ROLE_ARN: "/TSGIS/lambda/LAMBDA_ROLE_ARN"
+    TABLE_NAME: "/TSGIS/lambda/TABLE_NAME"
+phases:
+  install:
+    commands:
+    - npm install time
+    - ./build.sh
+artifacts:
+  type: zip
+  files:
+  - sam-template.yaml
+  - sam-output.yaml

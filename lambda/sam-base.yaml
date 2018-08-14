@@ -1,0 +1,67 @@
+﻿AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: ''
+Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      DefinitionUri: swagger.yaml
+      Variables:
+        historySteamGame: !Ref historySteamGame
+        steamGame: !Ref steamGame
+  historySteamGame:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.6
+      CodeUri: historySteamGame
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Enabled: true
+        Type: AllAtOnce
+      Description: ''
+      MemorySize: 128
+      Timeout: 9
+      Role: 'role_arn_placeholder'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /historySteamGame
+            Method: ANY
+      Environment:
+        Variables:
+          TABLE_NAME: table_name_placeholder
+  steamGame:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.6
+      CodeUri: steamGame
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Enabled: true
+        Type: AllAtOnce
+      Description: ''
+      MemorySize: 128
+      Timeout: 30
+      Role: 'role_arn_placeholder'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /steamGame
+            Method: ANY
+      Environment:
+        Variables:
+          ENCRYPTED_GOOGLE_API_KEY: >-
+            encrypted_google_api_key_placeholder
+          ENCRYPTED_GOOGLE_APP_ID: >-
+            encrypted_google_app_id_placeholder
+          IS_LAMBDA: 'true'
+          TABLE_NAME: table_name_placeholder
+      KmsKeyArn: >-
+        kms_key_arn_placeholder
