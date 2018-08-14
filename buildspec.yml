@@ -12,7 +12,7 @@ phases:
   install:
     commands:
     - npm install time
-    - ./build.sh
+    - ./lambda/build.sh
 artifacts:
   type: zip
   files:
