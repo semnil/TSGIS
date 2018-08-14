@@ -2,7 +2,6 @@ version: 0.1
 phases:
   install:
     commands:
-    - npm install time
     - ./lambda/build.sh
 artifacts:
   type: zip
