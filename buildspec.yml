@@ -2,7 +2,7 @@ version: 0.1
 phases:
   install:
     commands:
-    - ./lambda/build.sh
+    - bash lambda/build.sh
 artifacts:
   type: zip
   files:
