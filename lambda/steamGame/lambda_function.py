@@ -17,7 +17,7 @@ ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_APP_ID']
 os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode('utf-8')
 
 def _(cmd):
-    return subprocess.check_output(cmd)
+    return subprocess.check_output(cmd.split())
 
 def lambda_handler(event, context):
     start = datetime.now()
@@ -54,7 +54,7 @@ def lambda_handler(event, context):
             + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+', encoding='utf-8')
         json_string = ""
         try:
-            json_string = _(['./info_json.sh'])
+            json_string = _('bash info_json.sh')
             result = json.loads(json_string)
         except:
             print("except:", json_string)
