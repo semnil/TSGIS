@@ -23,6 +23,7 @@ Resources:
       Description: ''
       MemorySize: 128
       Timeout: 9
+      Tracing: Active
       Role: 'role_arn_placeholder'
       Events:
         Api1:
@@ -47,6 +48,7 @@ Resources:
       Description: ''
       MemorySize: 128
       Timeout: 30
+      Tracing: Active
       Role: 'role_arn_placeholder'
       Events:
         Api1:
