@@ -2,8 +2,9 @@ version: 0.1
 phases:
   install:
     commands:
-    - pip install aws-xray-sdk -t lamblda/historySteamGame
-    - pip install aws-xray-sdk -t lamblda/steamGame
+    - pip install --upgrade pip
+    - pip install aws-xray-sdk -t lambda/historySteamGame/vendored/.
+    - pip install aws-xray-sdk -t lambda/steamGame/vendored/.
     - bash lambda/build.sh
 artifacts:
   type: zip

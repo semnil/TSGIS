@@ -3,10 +3,13 @@
 import boto3
 import json
 import os
+import sys
 
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 from datetime import timedelta
+
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored'))
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch
 
