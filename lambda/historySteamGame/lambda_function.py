@@ -7,11 +7,16 @@ import os
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 from datetime import timedelta
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch
+
+patch(['boto3'])
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['TABLE_NAME'])
 
+    xray_recorder.begin_subsegment('get_history')
     scan = table.scan(
         FilterExpression=Attr('is_error').ne(True)
     )
@@ -25,6 +30,7 @@ def lambda_handler(event, context):
             ExclusiveStartKey=scan['LastEvaluatedKey']
         )
         scan['Items'].extend(next_scan['Items'])
+    xray_recorder.end_subsegment()
 
     items = [{'timestamp': x['timestamp'],
               'result': json.loads(x['result']),

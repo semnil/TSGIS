@@ -10,6 +10,10 @@ from base64 import b64decode
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 from datetime import timedelta
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch
+
+patch(['boto3'])
 
 ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_API_KEY']
 os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode('utf-8')
@@ -25,6 +29,7 @@ def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['TABLE_NAME'])
 
+    xray_recorder.begin_subsegment('get_history')
     scan = table.scan(
         FilterExpression=Attr('is_error').ne(True)
     )
@@ -38,6 +43,7 @@ def lambda_handler(event, context):
             ExclusiveStartKey=scan['LastEvaluatedKey']
         )
         scan['Items'].extend(next_scan['Items'])
+    xray_recorder.end_subsegment()
 
     items = map(lambda x:{'event': json.loads(x['event']),
                           'result': json.loads(x['result'])}, scan['Items'])
