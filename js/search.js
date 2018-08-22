@@ -60,6 +60,7 @@ if (pairs[0].split('=')[0] === 'title') {
                 textArea.select();
             };
             textArea.focus();
+            document.title += ' - ' + response['title'];
         } else if (this.readyState === 4 && this.status === 403) {
             table.deleteRow(-1);
             row = table.insertRow(-1);
