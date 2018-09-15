@@ -77,7 +77,7 @@ APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }' | tr -d '"'`
 #echo "<!-- app_id = ${APP_ID} -->"
 
 # get some params by a steam page
-DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
+DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g' | sed -e 's/amp;//g'`
 if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
     # avoid the OMAKUNI
     URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
@@ -87,7 +87,7 @@ if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
     STATUS=`curl -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
     #echo ${STATUS}
     #echo "-->"
-    DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g'`
+    DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g' | sed -e 's/amp;//g'`
     #if [ "${STATUS}" != "200" -o "${DISPLAY_TITLE}" != "" ] ; then
     #    echo "<p><b><font color=\"red\">This page have OMAKUNI in Japan.</font></b></p>"
     #fi
@@ -217,7 +217,7 @@ rm -rf ${TMP_PAGE_FILE}
 # formatted output
 echo "{"
 echo -n "\"title\":\""
-echo -n ${DISPLAY_TITLE} | sed -e 's/amp;//g'
+echo -n ${DISPLAY_TITLE}
 echo "\","
 echo "\"steam_url\":${STEAM_LINK},"
 echo "\"date\":\"${DATE}\","
