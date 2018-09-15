@@ -205,7 +205,7 @@ if [ "${STATUS}" != "200" ] ; then
     METASCORE_STR=""
 else
     # get two scores from the metacritic
-    META_SCORE=`cat ${TMP_PAGE_FILE} | grep "ratingValue" | sed 's/.*\">//g' | sed 's/<\/.*//g'`
+    META_SCORE=`cat ${TMP_PAGE_FILE} | grep "ratingValue" | tail -n 1 | sed 's/.*\">//g' | sed 's/<\/.*//g'`
     USER_SCORE=`cat ${TMP_PAGE_FILE} | grep "metascore_w user large" | head -n 1 | sed 's/.*\">//g' | sed 's/<\/.*//g'`
     METASCORE_STR=${META_SCORE:="tbd"}/${USER_SCORE:="tbd"}
 fi
