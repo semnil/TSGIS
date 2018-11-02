@@ -127,7 +127,7 @@ if [ "`cat ${TMP_PAGE_FILE} | grep -v "bundle_base_discount" | grep 'class="disc
     fi
 else
     # discounted
-    ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | grep 'class="discount_original_price"' | head -n 1 | sed -e 's/.*class="discount_original_price">¥ //g' | sed -e 's/<.*//g' | sed 's/,//g'`
+    ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | grep 'class="discount_original_price"' | head -n 1 | sed -e 's/.*class="discount_original_price">//g' | sed 's/¥ //g' | sed -e 's/<.*//g' | sed 's/,//g'`
 fi
 
 # get price by a steamdb page
@@ -138,14 +138,17 @@ PRICE_BLOCK=`cat -n ${TMP_PAGE_FILE} | grep 'id="js-price-history"' | awk '{ pri
 PRICE_LINE=`expr ${PRICE_BLOCK} + 6`
 if [ "${PRICE_BLOCK}" != "" -a "${PRICE_LINE}" != "" ] ; then
     LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed 's/.*">¥ *//g' | sed 's/ *at.*//g' | sed 's/<\/.*//g'`
-    if [ "${LOW_PRICE}" = "" -a "${ORIGINAL_PRICE}" = "" ] ; then
+    if [ "${LOW_PRICE}" = "" ] ; then
         #echo "<!-- get USD price -->"
         PRICE_BLOCK=`cat -n ${TMP_PAGE_FILE} | grep 'class="price-line" data-cc="us"' | awk '{ print $1 }'`
-        PRICE_LINE=`expr ${PRICE_BLOCK} + 3`
-        ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | tr -d ' '`
-        PRICE_LINE=`expr ${PRICE_BLOCK} + 7`
+        if [ "${ORIGINAL_PRICE}" = "" ] ; then
+            PRICE_LINE=`expr ${PRICE_BLOCK} + 3`
+            ORIGINAL_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | tr -d ' '`
+        fi
+        PRICE_LINE=`expr ${PRICE_BLOCK} + 6`
         LOW_PRICE=`cat ${TMP_PAGE_FILE} | tail -n+${PRICE_LINE} | head -n 1 | sed -e 's/<[^>]*>//g' | sed -e 's/at.*//g' | tr -d ' '`
-    elif [ "${LOW_PRICE}" = "" ] ; then
+    fi
+    if [ "${LOW_PRICE}" = "" ] ; then
         LOW_PRICE=${ORIGINAL_PRICE}
     fi
     [ "${ORIGINAL_PRICE}" = "" ] || PRICE_STR=${ORIGINAL_PRICE}/${LOW_PRICE}
