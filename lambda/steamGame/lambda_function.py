@@ -48,10 +48,12 @@ def lambda_handler(event, context):
         scan['Items'].extend(next_scan['Items'])
     xray_recorder.end_subsegment()
 
-    items = map(lambda x:{'event': json.loads(x['event']),
+    items = map(lambda x:{'timestamp': x['timestamp'],
+                          'event': json.loads(x['event']),
                           'result': json.loads(x['result'])}, scan['Items'])
+    items2 = sorted(items, key=lambda x:x['timestamp'], reverse=True)
 
-    histories = [y for y in items \
+    histories = [y for y in items2 \
         if 'error' not in y['result'] and \
             (y['event']['queryStringParameters']['title'] == event['queryStringParameters']['title'] or
              y['result']['title'] == urllib.parse.unquote(event['queryStringParameters']['title'], encoding='utf-8'))]
