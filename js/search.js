@@ -8,6 +8,9 @@ pairs.forEach(function (item) {
         cache = item.split('=')[1];
     }
 });
+var refresh_url = location.protocol + '//' + location.host + location.pathname + '?title=' + title + '&cache=no';
+var refresh_element = document.getElementById("refresh");
+refresh_element.href = refresh_url;
 if (pairs[0].split('=')[0] === 'title') {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
