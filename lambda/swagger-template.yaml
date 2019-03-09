@@ -118,6 +118,21 @@ paths:
         requestTemplates:
           application/json: '{"statusCode": 200}'
         type: mock
+  /robots.txt:
+    x-amazon-apigateway-any-method:
+      produces:
+        - text/plain
+      responses:
+        200:
+          description: 200 response
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri: arn:aws:apigateway:region_placeholder:lambda:path/2015-03-31/functions/arn:aws:lambda:region_placeholder:account_placeholder:function:${stageVariables.robotsTxt}:live/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
 definitions:
   Empty:
     type: 'object'
