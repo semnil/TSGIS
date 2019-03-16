@@ -22,7 +22,7 @@ Resources:
         Enabled: true
         Type: AllAtOnce
       Description: ''
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 9
       Tracing: Active
       Role: 'role_arn_placeholder'
@@ -47,7 +47,7 @@ Resources:
         Enabled: true
         Type: AllAtOnce
       Description: ''
-      MemorySize: 128
+      MemorySize: 512
       Timeout: 28
       Tracing: Active
       Role: 'role_arn_placeholder'
