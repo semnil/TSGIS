@@ -5,15 +5,14 @@ import json
 import os
 import sys
 
-from boto3.dynamodb.conditions import Key, Attr
-from datetime import datetime
-from datetime import timedelta
-
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored'))
+
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch
+from boto3.dynamodb.conditions import Key, Attr
 
 patch(['boto3'])
+
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
@@ -37,11 +36,10 @@ def lambda_handler(event, context):
 
     items = [{'timestamp': x['timestamp'],
               'result': json.loads(x['result']),
-              'event': json.loads(x['event'])} \
-             for x in scan['Items']]
+              'event': json.loads(x['event'])} for x in scan['Items']]
     titles = [x['result']['title'] for x in items]
-    items2 = sorted(list({v['result']['title']:v for v in items}.values()),
-                    key=lambda x:x['timestamp'],
+    items2 = sorted(list({v['result']['title']: v for v in items}.values()),
+                    key=lambda x: x['timestamp'],
                     reverse=True)
     histories = [('./search.html?title=' + y['event']['queryStringParameters']['title'],
                   y['result']['title'], titles.count(y['result']['title'])) for y in items2]

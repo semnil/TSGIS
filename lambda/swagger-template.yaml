@@ -15,7 +15,7 @@ paths:
   /historySteamGame:
     x-amazon-apigateway-any-method:
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: 200 response
@@ -29,11 +29,11 @@ paths:
         type: aws_proxy
     options:
       tags:
-      - 'CORS'
+        - 'CORS'
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: 200 response
@@ -71,7 +71,7 @@ paths:
           in: 'query'
           required: False
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: 200 response
@@ -87,11 +87,11 @@ paths:
         type: aws_proxy
     options:
       tags:
-      - 'CORS'
+        - 'CORS'
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: 200 response

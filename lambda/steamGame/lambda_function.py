@@ -7,24 +7,28 @@ import subprocess
 import sys
 import urllib.parse
 
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored'))
+
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch
 from base64 import b64decode
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 from datetime import timedelta
 
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendored'))
-from aws_xray_sdk.core import xray_recorder
-from aws_xray_sdk.core import patch
-
 patch(['boto3'])
 
 ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_API_KEY']
-os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode('utf-8')
+os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
+    'utf-8')
 ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_APP_ID']
-os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode('utf-8')
+os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
+    'utf-8')
+
 
 def _(cmd):
     return subprocess.check_output(cmd.split())
+
 
 def lambda_handler(event, context):
     start = datetime.now()
@@ -48,27 +52,32 @@ def lambda_handler(event, context):
         scan['Items'].extend(next_scan['Items'])
     xray_recorder.end_subsegment()
 
-    items = map(lambda x:{'timestamp': x['timestamp'],
-                          'event': json.loads(x['event']),
-                          'result': json.loads(x['result'])}, scan['Items'])
-    items2 = sorted(items, key=lambda x:x['timestamp'], reverse=True)
+    items = map(lambda x: {'timestamp': x['timestamp'],
+                           'event': json.loads(x['event']),
+                           'result': json.loads(x['result'])}, scan['Items'])
+    items2 = sorted(items, key=lambda x: x['timestamp'], reverse=True)
 
-    histories = [y for y in items2 \
+    histories = []
+    for y in items2:
         if 'error' not in y['result'] and \
-            (y['event']['queryStringParameters']['title'] == event['queryStringParameters']['title'] or
-             y['result']['title'] == urllib.parse.unquote(event['queryStringParameters']['title'], encoding='utf-8'))]
+                (y['event']['queryStringParameters']['title'] == event['queryStringParameters']['title'] or
+                 y['result']['title'] == urllib.parse.unquote(event['queryStringParameters']['title'],
+                                                              encoding='utf-8')):
+            histories.append(y)
 
     if len(histories) == 0 or \
-        ('cache' in event['queryStringParameters'] and
-                 event['queryStringParameters']['cache'] == 'no'):
+            ('cache' in event['queryStringParameters'] and
+             event['queryStringParameters']['cache'] == 'no'):
         os.environ['REQUEST_URI'] = 'info_json.sh?title=' \
-            + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+', encoding='utf-8')
+                                    + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+',
+                                                              encoding='utf-8')
         json_string = ""
         try:
             json_string = _('bash info_json.sh')
             result = json.loads(json_string)
-        except:
-            print("except:", json_string)
+        except Exception as e:
+            print("exception:", e)
+            print("string:", json_string)
             raise
     else:
         result = histories[0]['result']
