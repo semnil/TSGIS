@@ -9,7 +9,9 @@ Resources:
       DefinitionUri: swagger.yaml
       Variables:
         historySteamGame: !Ref historySteamGame
+        historySteamGameTest: !Ref historySteamGameTest
         steamGame: !Ref steamGame
+        steamGameTest: !Ref steamGameTest
         robotsTxt: !Ref robotsTxt
   historySteamGame:
     Type: 'AWS::Serverless::Function'
@@ -36,6 +38,31 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: table_name_placeholder
+  historySteamGameTest:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.6
+      CodeUri: historySteamGameTest
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Enabled: true
+        Type: AllAtOnce
+      Description: ''
+      MemorySize: 256
+      Timeout: 9
+      Tracing: Active
+      Role: 'role_arn_placeholder'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /historySteamGameTest
+            Method: ANY
+      Environment:
+        Variables:
+          TABLE_NAME: table_name_placeholderTest
   steamGame:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -66,6 +93,38 @@ Resources:
             encrypted_google_app_id_placeholder
           IS_LAMBDA: 'true'
           TABLE_NAME: table_name_placeholder
+      KmsKeyArn: >-
+        kms_key_arn_placeholder
+  steamGameTest:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.6
+      CodeUri: steamGameTest
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Enabled: true
+        Type: AllAtOnce
+      Description: ''
+      MemorySize: 512
+      Timeout: 28
+      Tracing: Active
+      Role: 'role_arn_placeholder'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /steamGameTest
+            Method: ANY
+      Environment:
+        Variables:
+          ENCRYPTED_GOOGLE_API_KEY: >-
+            encrypted_google_api_key_placeholder
+          ENCRYPTED_GOOGLE_APP_ID: >-
+            encrypted_google_app_id_placeholder
+          IS_LAMBDA: 'true'
+          TABLE_NAME: table_name_placeholderTest
       KmsKeyArn: >-
         kms_key_arn_placeholder
   robotsTxt:
