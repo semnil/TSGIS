@@ -24,7 +24,7 @@ Resources:
         Enabled: true
         Type: AllAtOnce
       Description: ''
-      MemorySize: 256
+      MemorySize: 512
       Timeout: 9
       Tracing: Active
       Role: 'role_arn_placeholder'
