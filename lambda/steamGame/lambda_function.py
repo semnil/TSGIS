@@ -35,43 +35,21 @@ def lambda_handler(event, context):
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['TABLE_NAME'])
+    title = event['queryStringParameters']['title']
 
-    xray_recorder.begin_subsegment('get_history')
-    scan = table.scan(
-        FilterExpression=Attr('is_error').ne(True)
+    histories = table.query(
+        KeyConditionExpression=Key('title').eq(title),
+        ScanIndexForward=False
     )
-    if 'LastEvaluatedKey' in scan:
-        next_scan = {'LastEvaluatedKey': scan['LastEvaluatedKey']}
-    else:
-        next_scan = {}
-    while 'LastEvaluatedKey' in next_scan:
-        next_scan = table.scan(
-            FilterExpression=Attr('is_error').ne(True),
-            ExclusiveStartKey=scan['LastEvaluatedKey']
-        )
-        scan['Items'].extend(next_scan['Items'])
-    xray_recorder.end_subsegment()
 
-    items = map(lambda x: {'timestamp': x['timestamp'],
-                           'event': json.loads(x['event']),
-                           'result': json.loads(x['result'])}, scan['Items'])
-    items2 = sorted(items, key=lambda x: x['timestamp'], reverse=True)
-
-    histories = []
-    for y in items2:
-        if 'error' not in y['result'] and \
-                (y['event']['queryStringParameters']['title'] == event['queryStringParameters']['title'] or
-                 y['result']['title'] == urllib.parse.unquote(event['queryStringParameters']['title'],
-                                                              encoding='utf-8')):
-            histories.append(y)
-
-    if len(histories) == 0 or \
+    if histories['Count'] == 0 or \
             ('cache' in event['queryStringParameters'] and
              event['queryStringParameters']['cache'] == 'no'):
         os.environ['REQUEST_URI'] = 'info_json.sh?title=' \
                                     + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+',
                                                               encoding='utf-8')
         json_string = ""
+        xray_recorder.begin_subsegment('get_information')
         try:
             json_string = _('bash info_json.sh')
             result = json.loads(json_string)
@@ -79,12 +57,17 @@ def lambda_handler(event, context):
             print("exception:", e)
             print("string:", json_string)
             raise
+        xray_recorder.end_subsegment()
+    elif histories['Count'] > 0 and 'result' in histories['Items'][0]:
+        result = json.loads(histories['Items'][0]['result'])
     else:
-        result = histories[0]['result']
+        result = {}
 
     completed = datetime.now()
+    timestamp = start.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (start.microsecond // 1000)
     history = {
-        'timestamp': start.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (start.microsecond // 1000),
+        'title': title,
+        'timestamp': timestamp,
         'completed': completed.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (completed.microsecond // 1000),
         'event': json.dumps(event),
         'result': json.dumps(result),
