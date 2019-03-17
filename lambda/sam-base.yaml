@@ -62,7 +62,7 @@ Resources:
             Method: ANY
       Environment:
         Variables:
-          TABLE_NAME: table_name_placeholderTest
+          TABLE_NAME: table_name_placeholder
   steamGame:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -124,7 +124,7 @@ Resources:
           ENCRYPTED_GOOGLE_APP_ID: >-
             encrypted_google_app_id_placeholder
           IS_LAMBDA: 'true'
-          TABLE_NAME: table_name_placeholderTest
+          TABLE_NAME: table_name_placeholder
       KmsKeyArn: >-
         kms_key_arn_placeholder
   robotsTxt:
