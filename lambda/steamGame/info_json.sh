@@ -9,8 +9,8 @@ export LC_MESSAGES='ja_JP.UTF-8'
 TMP_PAGE_FILE=/tmp/tmp.json
 HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q=allintitle%3A+steam+%3A+"
-UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36"
-METACRITIC_STR="http://www.metacritic.com"
+UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
+METACRITIC_STR="https://www.metacritic.com"
 
 
 PARAMS=(`echo ${REQUEST_URI} | awk 'BEGIN { FS="?" ; } { print $2 }' | awk 'BEGIN { FS="&" ; } { print $1 }'`)
@@ -166,7 +166,9 @@ fi
 
 if [ "${META_LINK}" = "" ] ; then
     # search a metacritic page
-    QUERY=`echo ${DISPLAY_TITLE} | sed -e 's/&amp;//g' | tr "A-Z" "a-z" | sed -E 's/- .* -$//g' | sed -E 's/:.*$//g' | sed -E 's/[^a-zA-Z0-9!-.:-@¥[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:\?\.&,\/]|-$|-dx$)//g" | sed -E 's/-+/+/g' | sed -E 's/\++/%20/g'`
+    if [ ${QUERY} = "" ] ; then
+        QUERY=`echo ${DISPLAY_TITLE} | sed -e 's/&amp;//g' | tr "A-Z" "a-z" | sed -E 's/- .* -$//g' | sed -E 's/:.*$//g' | sed -E 's/[^a-zA-Z0-9!-.:-@¥[-\`{-~ ]+.*//g' | sed 's/_/ /g' | sed -E 's/ +/-/g' | sed -E "s/([:\?\.&,\/]|-$|-dx$)//g" | sed -E 's/-+/+/g' | sed -E 's/\++/%20/g'`
+    fi
     URL=`echo ${METACRITIC_STR}/search/game/${QUERY}/results\?plats\\\[3\\\]=1\&search_type=advanced`
     #echo "<!-- metacritic search query = ${QUERY} -->"
     curl "${URL}" -H "${UA_OPTION}" 2>/dev/null > ${TMP_PAGE_FILE}
