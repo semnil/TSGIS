@@ -9,7 +9,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 TMP_PAGE_FILE=/tmp/tmp.json
 HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
 GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q=allintitle%3A+steam+%3A+"
-UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
+UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
 METACRITIC_STR="https://www.metacritic.com"
 
 
