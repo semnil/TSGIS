@@ -52,10 +52,10 @@ def lambda_handler(event, context):
         xray_recorder.begin_subsegment('get_information')
         try:
             json_string = _('bash info_json.sh')
+            print("json_string:", json_string)
             result = json.loads(json_string)
         except Exception as e:
             print("exception:", e)
-            print("string:", json_string)
             raise
         xray_recorder.end_subsegment()
     elif histories['Count'] > 0 and 'result' in histories['Items'][0]:
