@@ -17,7 +17,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: lambda_function.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.9
       CodeUri: historySteamGame
       AutoPublishAlias: live
       DeadLetterQueue:
@@ -45,7 +45,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: lambda_function.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.9
       CodeUri: historySteamGameTest
       AutoPublishAlias: live
       DeadLetterQueue:
@@ -73,7 +73,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: lambda_function.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.9
       CodeUri: steamGame
       AutoPublishAlias: live
       DeadLetterQueue:
@@ -108,7 +108,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: lambda_function.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.9
       CodeUri: steamGameTest
       AutoPublishAlias: live
       DeadLetterQueue:
@@ -143,7 +143,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: lambda_function.lambda_handler
-      Runtime: python3.6
+      Runtime: python3.9
       CodeUri: robots.txt
       AutoPublishAlias: live
       DeadLetterQueue:
