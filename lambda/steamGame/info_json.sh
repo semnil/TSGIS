@@ -52,7 +52,7 @@ else
     QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/　/ /g' | sed 's/ /+/g' | sed 's/:/%3A/g' | sed 's/&/%26/g' | sed 's/!/\\!/g' | sed 's/%20/+/g'`
     #echo "<!-- steam search query = ${QUERY} -->"
     SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}"
-    curl "${SEARCH_URL}" -o ${TMP_PAGE_FILE} 2>/dev/null
+    curl "${SEARCH_URL}" > ${TMP_PAGE_FILE}
     STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'https:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g' | sed 's/?.*"$/"/g'`
 fi
 
