@@ -22,8 +22,9 @@ ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_API_KEY']
 os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
     'utf-8')
 ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_APP_ID']
-os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
-    'utf-8')
+# os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
+#     'utf-8')
+os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 
 
 def _(cmd):
