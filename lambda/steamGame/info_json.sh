@@ -77,7 +77,7 @@ APP_ID=`echo ${STEAM_LINK} | awk 'BEGIN { FS="/"; } { print $5 }' | tr -d '"'`
 #echo "<!-- app_id = ${APP_ID} -->"
 
 # get some params by a steam page
-DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g' | sed -e 's/amp;//g'`
+DISPLAY_TITLE=`cat ${TMP_PAGE_FILE} | grep "apphub_AppName" | head -n 1 | sed 's/.*\">//g' | sed 's/<.*//g' | sed 's/[®™]//g' | sed -e 's/&trade;//g' | sed -e 's/amp;//g'`
 if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
     # avoid the OMAKUNI
     URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
