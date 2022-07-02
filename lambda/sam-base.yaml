@@ -74,6 +74,8 @@ Resources:
     Properties:
       Handler: lambda_function.lambda_handler
       Runtime: python3.9
+      Layers:
+        - arn:aws:lambda:ap-northeast-1:022531335481:layer:curl-lambda-layer:1
       CodeUri: steamGame
       AutoPublishAlias: live
       DeadLetterQueue:
@@ -111,6 +113,8 @@ Resources:
     Properties:
       Handler: lambda_function.lambda_handler
       Runtime: python3.9
+      Layers:
+        - arn:aws:lambda:ap-northeast-1:022531335481:layer:curl-lambda-layer:1
       CodeUri: steamGameTest
       AutoPublishAlias: live
       DeadLetterQueue:
