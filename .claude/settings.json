@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sS 'https://apil1.semnil.com/steamGame?title=test' -w '\\\\n---\\\\nHTTP: %{http_code}\\\\n' --max-time 30)",
+      "Bash(aws sts *)",
+      "Bash(curl -sS 'https://apil1.semnil.com/steamGame?title=portal&cache=no' -w '\\\\n---\\\\nHTTP: %{http_code}\\\\n' --max-time 30)",
+      "Bash(aws lambda *)",
+      "Bash(curl -sS 'https://store.steampowered.com/api/storesearch/?term=portal&l=japanese&cc=jp')",
+      "Bash(curl -sS 'https://store.steampowered.com/api/storesearch/?term=%E3%83%95%E3%82%A1%E3%82%A4%E3%83%8A%E3%83%AB%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC&l=japanese&cc=jp')",
+      "Read(//Users/semnil/.claude/projects/**)"
+    ],
+    "additionalDirectories": [
+      "/Users/semnil/.claude/projects/-Users-semnil-Documents-workspace-TSGIS"
+    ]
+  }
+}
