@@ -1,6 +1,6 @@
 # Google Custom Search JSON API から Steam Store Search API への移行
 
-> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。残タスクは AWS アカウント側のクリーンアップ (Lambda 実行ロールの `kms:Decrypt` 権限剥離、CMK 無効化、CodeBuild 環境変数削除)。
+> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。Lambda 実行ロールは SAM の `Policies` プロパティ方式 (per-function 自動生成ロール) に移行し、本スタックから旧共有ロール `service-role/lambda` への参照は消滅。CMK は削除済み、旧 Google 関連環境変数も CodeBuild から除去済み。唯一残るのは旧共有ロール自体の削除 (MCS-Stack / `loginReNet` が共用中のため TSGIS 側では保留、他プロジェクト側の移行と合わせて別タスクで実施)。
 
 ## 目的
 
@@ -208,15 +208,18 @@ os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 
 `ENCRYPTED_GOOGLE_API_KEY`, `ENCRYPTED_GOOGLE_APP_ID`, `KMS_KEY_ARN`, `GOOGLE_SEARCH_KEY` の 4 つの `export` 行を削除。CodeBuild の環境変数からも併せて外すこと。
 
-### IAM ロール・AWS リソースのクリーンアップ (deploy 後の残タスク)
+### IAM ロール・AWS リソースのクリーンアップ (2026-04-18 時点の状況)
 
-CFN スタック側のテンプレートから依存は外れたが、AWS アカウント側には以下が残っているため別途剥離する:
+CFN スタック側から依存が外れたリソースを整理した結果:
 
-- Lambda 実行ロール (`arn:aws:iam::022531335481:role/service-role/lambda`) の `kms:Decrypt` 権限 (Policies 移行に伴い本スタックからは参照されなくなっている可能性あり、他スタック / 手動作成 Lambda からの参照がないか確認のうえ削除)
-- CMK `arn:aws:kms:ap-northeast-1:022531335481:key/52a4736a-1fca-4263-acc2-3e03af29645b` の無効化 → 7〜30 日後のスケジュール削除
-- CodeBuild プロジェクト `TSGIS-Build` の環境変数から `ENCRYPTED_GOOGLE_API_KEY` / `ENCRYPTED_GOOGLE_APP_ID` / `KMS_KEY_ARN` / `GOOGLE_SEARCH_KEY` を削除
+- **Lambda 実行ロール (per-function に分離済み)**: 各 Function を `Role: role_arn_placeholder` (共有ロール参照) から SAM の `Policies` プロパティ (per-function 自動生成ロール) に切り替え済み。`historySteamGame` は `DynamoDBReadPolicy`、`steamGame` は `DynamoDBCrudPolicy` を付与。`robotsTxt` はポリシー無指定で SAM 自動の basic 実行ロールのみ。DLQ の `sns:Publish` と X-Ray の書込権限は `DeadLetterQueue` / `Tracing: Active` の指定から SAM が自動付与するため明示不要。`.env` の `LAMBDA_ROLE_ARN` は未使用 (将来削除可)。
+- **旧共有ロール `arn:aws:iam::022531335481:role/service-role/lambda` は削除保留**: TSGIS からの参照はゼロになったが、`MCS-Stack-MCS*` (5 Function) と `loginReNet` が引き続き共用しているため、単独削除すると他系統が停止する。本スタックのクリーンアップ目的としては完了扱いとし、旧ロール削除は MCS-Stack / loginReNet の個別移行と合わせて別タスクで実施する。
+- **CMK (旧 Google API キー暗号化用)**: 削除済み。
+- **CodeBuild 環境変数**: `ENCRYPTED_GOOGLE_API_KEY` / `ENCRYPTED_GOOGLE_APP_ID` / `KMS_KEY_ARN` / `GOOGLE_SEARCH_KEY` を削除済み。
 
-> 移行に伴い各 Lambda Function を `Role: role_arn_placeholder` (共有ロール参照) から SAM の `Policies` プロパティ (per-function 自動生成ロール) に切り替え、`historySteamGame` は `DynamoDBReadPolicy`、`steamGame` は `DynamoDBCrudPolicy` を付与する構成に移行した。これにより `LAMBDA_ROLE_ARN` 環境変数は将来的に不要になる。
+#### SAM Policies 化に伴う CFn service role の権限追加 (恒久)
+
+SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を自動付与する。CloudFormation の service role `cloudformation-lambda-execution-role` のインラインポリシー `cloudformation-lambda-execution-policy` には当初 `iam:TagRole` / `iam:UntagRole` が無く初回 deploy が `UnauthorizedTaggingOperation` で失敗したため、`arn:aws:iam::022531335481:role/*` スコープで両 Action を追加した。IAM 系 Action 群 (CreateRole/DeleteRole/PutRolePolicy/AttachRolePolicy 等) が既に同スコープで許可されているので権限範囲の実質的拡大は無いが、SAM で Policies 化する他スタック (MCS-Stack 等) の今後の移行時には同権限が前提になる。
 
 ## 影響範囲とリスク
 
