@@ -15,10 +15,17 @@
       "Bash(aws codebuild *)",
       "Bash(aws s3 *)",
       "Bash(aws logs *)",
-      "Bash(pip3 --version)"
+      "Bash(pip3 --version)",
+      "Bash(aws iam *)",
+      "Bash(aws configure *)",
+      "Bash(curl -sS -w \"\\\\nHTTP:%{http_code} time:%{time_total}s\\\\n\" \"https://apil1.semnil.com/steamGame?title=Portal+2\")",
+      "Bash(curl -sS -w \"\\\\nHTTP:%{http_code} time:%{time_total}s\\\\n\" \"https://apil1.semnil.com/historySteamGame\")",
+      "Bash(curl -sS -w \"\\\\nHTTP:%{http_code} time:%{time_total}s\\\\n\" \"https://apil1.semnil.com/robots.txt\")"
     ],
     "additionalDirectories": [
-      "/Users/semnil/.claude/projects/-Users-semnil-Documents-workspace-TSGIS"
+      "/Users/semnil/.claude/projects/-Users-semnil-Documents-workspace-TSGIS",
+      "/tmp",
+      "/private/tmp"
     ]
   }
 }
