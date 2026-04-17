@@ -28,7 +28,9 @@ Resources:
       MemorySize: 512
       Timeout: 9
       Tracing: Active
-      Role: 'role_arn_placeholder'
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: table_name_placeholder
       Events:
         Api1:
           Type: Api
@@ -58,7 +60,9 @@ Resources:
       MemorySize: 512
       Timeout: 28
       Tracing: Active
-      Role: 'role_arn_placeholder'
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: table_name_placeholder
       Events:
         Api1:
           Type: Api
@@ -87,7 +91,6 @@ Resources:
       MemorySize: 128
       Timeout: 3
       Tracing: Active
-      Role: 'role_arn_placeholder'
       Events:
         Api1:
           Type: Api
