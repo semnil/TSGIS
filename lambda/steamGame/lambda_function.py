@@ -11,20 +11,11 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'vendo
 
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch
-from base64 import b64decode
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 from datetime import timedelta
 
 patch(['boto3'])
-
-ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_API_KEY']
-os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
-    'utf-8')
-ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_APP_ID']
-# os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
-#     'utf-8')
-os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 
 
 def _(cmd):

@@ -7,17 +7,9 @@ import subprocess
 import sys
 import urllib.parse
 
-from base64 import b64decode
 from boto3.dynamodb.conditions import Key, Attr
 from datetime import datetime
 from datetime import timedelta
-
-ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_API_KEY']
-os.environ['GOOGLE_API_KEY'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
-    'utf-8')
-ENCRYPTED = os.environ['ENCRYPTED_GOOGLE_APP_ID']
-os.environ['GOOGLE_APP_ID'] = boto3.client('kms').decrypt(CiphertextBlob=b64decode(ENCRYPTED))['Plaintext'].decode(
-    'utf-8')
 
 
 def _(cmd):

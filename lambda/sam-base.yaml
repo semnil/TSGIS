@@ -98,16 +98,8 @@ Resources:
             Method: ANY
       Environment:
         Variables:
-          ENCRYPTED_GOOGLE_API_KEY: >-
-            encrypted_google_api_key_placeholder
-          ENCRYPTED_GOOGLE_APP_ID: >-
-            encrypted_google_app_id_placeholder
-          GOOGLE_SEARCH_KEY:
-            google_search_key_placeholder
           IS_LAMBDA: 'true'
           TABLE_NAME: table_name_placeholder
-      KmsKeyArn: >-
-        kms_key_arn_placeholder
   steamGameTest:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -137,16 +129,8 @@ Resources:
             Method: ANY
       Environment:
         Variables:
-          ENCRYPTED_GOOGLE_API_KEY: >-
-            encrypted_google_api_key_placeholder
-          ENCRYPTED_GOOGLE_APP_ID: >-
-            encrypted_google_app_id_placeholder
-          GOOGLE_SEARCH_KEY:
-            google_search_key_placeholder
           IS_LAMBDA: 'true'
           TABLE_NAME: table_name_placeholder
-      KmsKeyArn: >-
-        kms_key_arn_placeholder
   robotsTxt:
     Type: 'AWS::Serverless::Function'
     Properties:

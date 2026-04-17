@@ -8,7 +8,7 @@ export LC_MESSAGES='ja_JP.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
 HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
-GOOGLE_SEARCH_STR="https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_APP_ID}&q=allintitle%3A+steam+%3A+"
+STEAM_SEARCH_STR="https://store.steampowered.com/api/storesearch/?l=japanese&cc=jp&term="
 UA_OPTION="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
 METACRITIC_STR="https://www.metacritic.com"
 
@@ -48,12 +48,17 @@ elif echo ${INPUT_STR} | grep '^https:\/\/store.steampowered.com\/app\/[0-9]\+' 
     # input steam url
     STEAM_LINK=\"`echo ${INPUT_STR} | sed -e 's/\?[^\/]*$//g'`\"
 else
-    # search a steam page by the google
-    QUERY=`echo ${INPUT_STR} | sed 's/-/ /g' | sed 's/　/ /g' | sed 's/ /+/g' | sed 's/:/%3A/g' | sed 's/&/%26/g' | sed 's/!/\\!/g' | sed 's/%20/+/g'`
+    # search a steam page by the steam store search api
+    QUERY=`python -c "import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1]))" "${INPUT_STR}"`
     #echo "<!-- steam search query = ${QUERY} -->"
-    SEARCH_URL="${GOOGLE_SEARCH_STR}${QUERY}"
-    curl "${SEARCH_URL}" > ${TMP_PAGE_FILE}
-    STEAM_LINK=`cat ${TMP_PAGE_FILE} | grep "\"link\":" | grep 'https:\/\/store.steampowered.com\/app\/[0-9]\+' | head -n 1 | sed 's/^.*\"link\": //g' | sed 's/,.*//g' | sed 's/?.*"$/"/g'`
+    SEARCH_URL="${STEAM_SEARCH_STR}${QUERY}"
+    curl -sS "${SEARCH_URL}" > ${TMP_PAGE_FILE}
+    APP_ID=`python -c "import sys,json; d=json.load(sys.stdin); print(d['items'][0]['id'] if d.get('items') else '')" < ${TMP_PAGE_FILE}`
+    if [ -z "${APP_ID}" ] ; then
+        echo "{\"error\":\"No steam app matched the query.\"}"
+        exit 0
+    fi
+    STEAM_LINK="\"https://store.steampowered.com/app/${APP_ID}/\""
 fi
 
 URL=`echo ${STEAM_LINK} | awk 'BEGIN { FS="\""; } { print $2 }'`
@@ -63,10 +68,7 @@ URL="${URL}?cc=JP"
 STATUS=`curl -L -H 'Accept-Language: ja,en-US;q=0.8,en;q=0.6' ${URL} -o ${TMP_PAGE_FILE} -w '%{http_code}\n' -H 'Cookie: mature_content=1; birthtime=444927601; timezoneOffset=32400,0;' 2>/dev/null`
 #echo ${STATUS}
 #echo "-->"
-if cat ${TMP_PAGE_FILE} | grep '"domain": "usageLimits"' >/dev/null 2>&1 ; then
-    echo "{\"error\":\"API usage limits.\"}"
-    exit 0
-elif [ "${STATUS}" != "200" ] ; then
+if [ "${STATUS}" != "200" ] ; then
     #echo "<p><b><font color=\"red\">Can not open a steam page.</font></b></p>"
     echo "{\"error\":\"Can not open a steam page.\",\"search_result\":`cat ${TMP_PAGE_FILE} | tr -d '\n'`}"
     exit 0
