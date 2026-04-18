@@ -8,9 +8,9 @@ Steam ゲーム情報収集機のバックエンド (Lambda + API Gateway + Dyna
 
 本リポジトリはバックエンド (Lambda 関数 + SAM テンプレート) のみを管理する。フロントエンド (HTML/JS) は別リポジトリ [semnil/semnil.com](https://github.com/semnil/semnil.com) の `www/game/` 配下で管理している。
 
-- `lambda/` — Lambda 関数ソースと SAM テンプレート
+- `lambda/` — Lambda 関数ソースと SAM テンプレート (`deploy-local.sh` はローカル deploy 用)
 - `docs/` — 設計・移行ドキュメント
-- `buildspec.yml` — CodeBuild 定義
+- `buildspec.yml` — CodePipeline / CodeBuild 定義 (本番デプロイはここから `sam-output.yaml` を artifact 出力 → CloudFormation アクションで反映)
 
 ## 利用する外部サービス
 

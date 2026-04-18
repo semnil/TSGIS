@@ -132,7 +132,8 @@ flowchart LR
 - [lambda/steamGame/info_json.sh](../lambda/steamGame/info_json.sh)
 - [lambda/steamGame/lambda_function.py](../lambda/steamGame/lambda_function.py)
 - [lambda/sam-base.yaml](../lambda/sam-base.yaml)
-- [lambda/build.sh](../lambda/build.sh)
+- [buildspec.yml](../buildspec.yml) (CodePipeline 用、旧 `lambda/build.sh` の処理を統合)
+- [lambda/deploy-local.sh](../lambda/deploy-local.sh) (ローカル deploy 用、旧 `lambda/build.sh` の処理を統合)
 - [lambda/.env.base](../lambda/.env.base) (サンプル)
 - `lambda/steamGameTest/` 配下一式 (移行時に削除)
 - `lambda/historySteamGameTest/` 配下一式 (移行時に削除)
@@ -195,14 +196,16 @@ os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 
 `IS_LAMBDA: 'true'` と `TABLE_NAME` は保持する。併せて `steamGameTest` / `historySteamGameTest` の Function 定義と `ApiGatewayApi` の Stage Variables からの参照を削除した。
 
-### build.sh の変更点
+### build.sh の変更点 (2026-04-19 時点で build.sh 自体は廃止)
 
-[lambda/build.sh:7](../lambda/build.sh#L7) の `sed` パイプラインから以下の置換を削除:
+旧 `lambda/build.sh` の `sed` パイプラインから以下の置換を削除した (移行当時の変更):
 
 - `encrypted_google_api_key_placeholder`
 - `encrypted_google_app_id_placeholder`
 - `google_search_key_placeholder`
 - `kms_key_arn_placeholder`
+
+その後 2026-04-19 に `lambda/build.sh` 自体を廃止し、CodePipeline 用の処理は [buildspec.yml](../buildspec.yml) へ、ローカル deploy 用の処理は [lambda/deploy-local.sh](../lambda/deploy-local.sh) へ分離した。CodeBuild 標準イメージには `sam` CLI が無く、build.sh に `sam deploy` を含めるとビルドが失敗するため。
 
 ### .env.base の変更点
 
@@ -262,19 +265,21 @@ macOS (Python 3.14, curl) にて `IS_LAMBDA=true` + `python` シンボリック�
 
 ### デプロイ後の確認結果 (2026-04-18 実施)
 
-1. ローカル `lambda/build.sh` で SAM パッケージング + `sam deploy` 成功 (`Successfully created/updated stack - TGIS-Stack in ap-northeast-1`)
-2. 初回 deploy で `Runtime.ImportModuleError: No module named 'aws_xray_sdk'` が発生 → `buildspec.yml` の `pip install aws-xray-sdk -t lambda/*/vendored/.` に相当する処理を `build.sh` 冒頭に追加して再 deploy、解消
+1. ローカル `lambda/deploy-local.sh` で SAM パッケージング + `sam deploy` 成功 (`Successfully created/updated stack - TGIS-Stack in ap-northeast-1`)
+2. 初回 deploy で `Runtime.ImportModuleError: No module named 'aws_xray_sdk'` が発生 → `pip install aws-xray-sdk -t lambda/*/vendored/.` を buildspec.yml / deploy-local.sh 双方の前処理に入れることで解消
 3. `GET https://apil1.semnil.com/steamGame?title=portal&cache=no` が HTTP 200 を返し Portal 2 (app/620) のデータを取得することを確認
 4. DynamoDB のキャッシュ (`cache=yes` デフォルト) は旧実装と同一経路のため継続して機能
 
 ### ローカル deploy 時の前提条件
 
-ローカルマシンから `lambda/build.sh` 経由で deploy する場合は以下が必要:
+ローカルマシンから deploy する場合は以下が必要:
 
 - `aws` CLI が `022531335481` アカウントに認証されていること
 - `sam` CLI がインストールされていること (macOS なら `brew install aws-sam-cli`)
-- `pip` もしくは `pip3` がパスに通っていること (build.sh は `command -v` で検出)
-- `AWS_BUCKET=semnil-ap-northeast-1` を shell に export してから `bash lambda/build.sh` を実行
+- `pip` もしくは `pip3` がパスに通っていること (deploy-local.sh は `command -v` で検出)
+- `AWS_BUCKET=semnil-ap-northeast-1` を shell に export してから `bash lambda/deploy-local.sh` を実行
+
+`lambda/deploy-local.sh` はローカル deploy 専用の自己完結スクリプト。CodePipeline 用の処理は [buildspec.yml](../buildspec.yml) 側で完結しており、両者は同じ sed 置換とパッケージング処理を別々に保持する (CodeBuild 標準イメージに `sam` CLI が無く共通の `build.sh` に集約できないため)。
 
 ### 回帰確認
 

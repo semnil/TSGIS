@@ -5,7 +5,10 @@ phases:
     - pip install --upgrade pip
     - pip install aws-xray-sdk -t lambda/historySteamGame/vendored/.
     - pip install aws-xray-sdk -t lambda/steamGame/vendored/.
-    - bash lambda/build.sh
+    - sed "s/account_placeholder/${AWS_ACCOUNT}/g; s/region_placeholder/${AWS_REGION}/g" lambda/swagger-template.yaml > lambda/swagger.yaml
+    - sed "s/bucket_placeholder/${AWS_BUCKET}/g; s/table_name_placeholder/${TABLE_NAME}/g" lambda/sam-base.yaml > lambda/sam-template.yaml
+    - aws cloudformation package --template-file lambda/sam-template.yaml --output-template-file sam-output.yaml --s3-bucket ${AWS_BUCKET} --s3-prefix lambda
+    - rm lambda/sam-template.yaml lambda/swagger.yaml
 artifacts:
   type: zip
   files:
