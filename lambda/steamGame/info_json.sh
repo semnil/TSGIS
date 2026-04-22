@@ -101,6 +101,7 @@ if [ "${STATUS}" == "200" -a "${DISPLAY_TITLE}" = "" ] ; then
     exit 0
 fi
 DATE=`cat ${TMP_PAGE_FILE} | grep "class=\"date\"" | sed 's/.*\">//g' | sed 's/日//g' | sed 's/<.*//g' | sed 's/年/\//g' | sed 's/月/\//g' | sed 's/\/$//g'`
+HEADER_IMG=`grep -oE 'https://[^"]+/header\.jpg' ${TMP_PAGE_FILE} | head -n 1`
 
 GENRE=`cat ${TMP_PAGE_FILE} | grep "://store.steampowered.com/genre/" | grep -v "popup_menu_item" | grep -v "&gt; <a" | tail -n 1 | sed 's/<[^a\"]*> *//g' | sed 's/<[^>]*>//g' | tr -d "[:blank:]"`
 GENRE=`echo ${GENRE} | sed 's/カジュアル//g' | sed 's/独立系開発会社//g' | sed 's/早期アクセス//g' | sed 's/MM（MassivelyMultiplayer）//g' | sed 's/アクションRPG/ARPG/g' | sed 's/シミュレーションRPG/SRPG/g' | sed 's/ハックアンドスラッシュ/ハクスラ/g' | sed 's/アクション/ACT/g' | sed 's/シューティング/STG/g' | tr -d '\r' | sed -E 's/,+/,/g' | sed -E 's/(^,|,$)//g' | sed 's/,/\//g' | sed 's/ACT\/RPG/ARPG/g'`
@@ -214,6 +215,7 @@ echo -n "\"title\":\""
 echo -n ${DISPLAY_TITLE}
 echo "\","
 echo "\"steam_url\":${STEAM_LINK},"
+echo "\"header_img\":\"${HEADER_IMG}\","
 echo "\"date\":\"${DATE}\","
 echo "\"genre\":\"${GENRE}\","
 echo "\"metascore\":\"${METASCORE_STR}\","
