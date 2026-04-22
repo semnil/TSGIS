@@ -2,9 +2,9 @@
 
 cd `dirname ${BASH_SOURCE:-$0}`
 
-export LANG='ja_JP.UTF-8'
-export LC_ALL='ja_JP.UTF-8'
-export LC_MESSAGES='ja_JP.UTF-8'
+export LANG='C.UTF-8'
+export LC_ALL='C.UTF-8'
+export LC_MESSAGES='C.UTF-8'
 
 TMP_PAGE_FILE=/tmp/tmp.json
 HIST_FILE=/tmp/$(pwd | sed 's/\//./g').hist
@@ -44,7 +44,7 @@ expr "${INPUT_STR}" + 1 >/dev/null 2>&1
 if [ $? -lt 2 ] ; then
     # make link url from AppId
     STEAM_LINK="\"https://store.steampowered.com/app/${INPUT_STR}/\""
-elif echo ${INPUT_STR} | grep '^https:\/\/store.steampowered.com\/app\/[0-9]\+' >/dev/null 2>&1 ; then
+elif echo ${INPUT_STR} | grep -E '^https://store.steampowered.com/app/[0-9]+' >/dev/null 2>&1 ; then
     # input steam url
     STEAM_LINK=\"`echo ${INPUT_STR} | sed -e 's/\?[^\/]*$//g'`\"
 else
