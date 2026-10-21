@@ -7,10 +7,29 @@ Resources:
     Properties:
       StageName: Prod
       DefinitionUri: swagger.yaml
+      MethodSettings:
+        - ResourcePath: /*
+          HttpMethod: '*'
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 10
       Variables:
         historySteamGame: !Ref historySteamGame
         steamGame: !Ref steamGame
         robotsTxt: !Ref robotsTxt
+  GatewayResponseDefault4xx:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ApiGatewayApi
+      ResponseType: DEFAULT_4XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  GatewayResponseDefault5xx:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ApiGatewayApi
+      ResponseType: DEFAULT_5XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
   historySteamGame:
     Type: 'AWS::Serverless::Function'
     Properties:

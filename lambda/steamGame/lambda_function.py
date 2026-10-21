@@ -22,8 +22,13 @@ def _(cmd):
     return subprocess.check_output(cmd.split())
 
 
+# Seconds a stored result is served before the handler re-fetches it.
+CACHE_MAX_AGE_SECONDS = 86400 * 3
+
+
 def lambda_handler(event, context):
     start = datetime.now()
+    now_epoch = int(start.timestamp())
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['TABLE_NAME'])
@@ -34,9 +39,14 @@ def lambda_handler(event, context):
         ScanIndexForward=False
     )
 
-    if histories['Count'] == 0 or \
-            ('cache' in event['queryStringParameters'] and
-             event['queryStringParameters']['cache'] == 'no'):
+    cached = histories['Items'][0] if histories['Count'] > 0 else None
+    fresh = cached is not None and 'result' in cached and 'fetched_at' in cached \
+        and now_epoch - int(cached['fetched_at']) < CACHE_MAX_AGE_SECONDS
+
+    if fresh:
+        result = json.loads(cached['result'])
+        fetched_at = int(cached['fetched_at'])
+    else:
         os.environ['REQUEST_URI'] = 'info_json.sh?title=' \
                                     + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+',
                                                               encoding='utf-8')
@@ -50,10 +60,7 @@ def lambda_handler(event, context):
             print("exception:", e)
             raise
         xray_recorder.end_subsegment()
-    elif histories['Count'] > 0 and 'result' in histories['Items'][0]:
-        result = json.loads(histories['Items'][0]['result'])
-    else:
-        result = {}
+        fetched_at = now_epoch
 
     completed = datetime.now()
     timestamp = start.strftime('%Y/%m/%d %H:%M:%S') + '.%03d' % (start.microsecond // 1000)
@@ -64,6 +71,7 @@ def lambda_handler(event, context):
         'event': json.dumps(event),
         'result': json.dumps(result),
         'is_error': 'error' in result,
+        'fetched_at': fetched_at,
         'ttl': int((completed + timedelta(days=31)).timestamp())
     }
     table.put_item(Item=history)
