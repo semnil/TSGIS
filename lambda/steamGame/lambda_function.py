@@ -23,7 +23,7 @@ def _(cmd):
 
 
 # Seconds a stored result is served before the handler re-fetches it.
-CACHE_MAX_AGE_SECONDS = 86400
+CACHE_MAX_AGE_SECONDS = 86400 * 3
 
 
 def lambda_handler(event, context):
