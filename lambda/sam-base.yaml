@@ -7,6 +7,11 @@ Resources:
     Properties:
       StageName: Prod
       DefinitionUri: swagger.yaml
+      MethodSettings:
+        - ResourcePath: /*
+          HttpMethod: '*'
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 10
       Variables:
         historySteamGame: !Ref historySteamGame
         steamGame: !Ref steamGame

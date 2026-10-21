@@ -34,9 +34,7 @@ def lambda_handler(event, context):
         ScanIndexForward=False
     )
 
-    if histories['Count'] == 0 or \
-            ('cache' in event['queryStringParameters'] and
-             event['queryStringParameters']['cache'] == 'no'):
+    if histories['Count'] == 0:
         os.environ['REQUEST_URI'] = 'info_json.sh?title=' \
                                     + urllib.parse.quote_plus(event['queryStringParameters']['title'], safe='+',
                                                               encoding='utf-8')

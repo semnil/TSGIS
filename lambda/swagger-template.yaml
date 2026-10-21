@@ -67,9 +67,6 @@ paths:
         - name: 'title'
           in: 'query'
           required: True
-        - name: 'cache'
-          in: 'query'
-          required: False
       produces:
         - application/json
       responses:
