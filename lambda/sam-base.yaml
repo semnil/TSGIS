@@ -12,6 +12,15 @@ Resources:
           HttpMethod: '*'
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 10
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
       Variables:
         historySteamGame: !Ref historySteamGame
         steamGame: !Ref steamGame
