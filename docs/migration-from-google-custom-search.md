@@ -1,6 +1,6 @@
 # Google Custom Search JSON API から Steam Store Search API への移行
 
-> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。Lambda 実行ロールは SAM の `Policies` プロパティ方式 (per-function 自動生成ロール) に移行し、本スタックから旧共有ロールへの参照は消滅。CMK は削除済み。
+> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。Lambda 実行ロールは SAM の `Policies` プロパティ方式 (per-function 自動生成ロール) に移行し、本スタックのテンプレートから旧共有ロールへの参照は消滅。CMK は削除済み。
 
 ## 目的
 
@@ -204,7 +204,7 @@ os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 CFN スタック側から依存が外れたリソースを整理した結果:
 
 - **Lambda 実行ロール (per-function に分離済み)**: 各 Function を `Role: role_arn_placeholder` (共有ロール参照) から SAM の `Policies` プロパティ (per-function 自動生成ロール) に切り替え済み。`historySteamGame` は `DynamoDBReadPolicy`、`steamGame` は `DynamoDBCrudPolicy` を付与。`robotsTxt` はポリシー無指定で SAM 自動の basic 実行ロールのみ。DLQ の `sns:Publish` と X-Ray の書込権限は `DeadLetterQueue` / `Tracing: Active` の指定から SAM が自動付与するため明示不要。`.env` の `LAMBDA_ROLE_ARN` は未使用になった (`lambda/.env.base` の定義は、その後に削除した)。
-- **旧共有ロール**: 本スタックからの参照はゼロになった。ロール自体は本スタックの外でも使われているため、本スタックのクリーンアップでは削除していない。
+- **旧共有ロール**: 本スタックのテンプレートからの参照はゼロになった (切り替えの前に公開した関数バージョンは、公開時のロールを指したまま残る)。ロール自体は本スタックの外でも使われているため、本スタックのクリーンアップでは削除していない。
 - **CMK (旧 Google API キー暗号化用)**: 削除済み。
 
 #### SAM Policies 化に伴う CFn service role の権限追加 (恒久)
