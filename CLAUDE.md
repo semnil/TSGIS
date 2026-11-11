@@ -15,7 +15,7 @@ There are two build paths, and each is self-contained:
 | CodePipeline / CodeBuild | `buildspec.yml` | `sam-output.yaml` as the build artifact; a CloudFormation action in the pipeline deploys it |
 | Local | `lambda/deploy-local.sh` | `sam deploy` |
 
-Both go through the same three steps: `pip install aws-xray-sdk -t` into each function's `vendored/`, `sed` over the placeholders in `lambda/sam-base.yaml` and `lambda/swagger-template.yaml`, then `aws cloudformation package`.
+Both go through the same three steps: `pip install aws-xray-sdk -t` into the `vendored/` of `steamGame` and of `historySteamGame`, `sed` over the placeholders in `lambda/sam-base.yaml` and `lambda/swagger-template.yaml`, then `aws cloudformation package`.
 
 - **Change both files together.** A new `sed` placeholder, a new variable in `lambda/sam-base.yaml`, or any change to the steps before packaging goes into `buildspec.yml` and `lambda/deploy-local.sh` in the same commit
 - The two paths are not merged into one script because the image of the CodeBuild project has no `sam` command, so a shared script that ends with `sam deploy` fails the build
