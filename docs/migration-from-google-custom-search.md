@@ -1,6 +1,6 @@
 # Google Custom Search JSON API から Steam Store Search API への移行
 
-> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。Lambda 実行ロールは SAM の `Policies` プロパティ方式 (per-function 自動生成ロール) に移行し、本スタックから旧共有ロール `service-role/lambda` への参照は消滅。CMK は削除済み、旧 Google 関連環境変数も CodeBuild から除去済み。唯一残るのは旧共有ロール自体の削除 (MCS-Stack / `loginReNet` が共用中のため TSGIS 側では保留、他プロジェクト側の移行と合わせて別タスクで実施)。
+> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。Lambda 実行ロールは SAM の `Policies` プロパティ方式 (per-function 自動生成ロール) に移行し、本スタックのテンプレートから旧共有ロールへの参照は消滅。CMK は削除済み。
 
 ## 目的
 
@@ -27,28 +27,16 @@
 
 ### 調査プロセスと判明した事実
 
-| 実施した確認 | 結果 |
-|---|---|
-| Google Cloud プロジェクト `teikoku-tool` で Custom Search API が有効か | 有効 |
-| API キーが無効化されていないか | 有効 |
-| API キーに API 制限がかかっていないか | 制限なし (後に Custom Search API 限定に変更) |
-| Programmable Search Engine (cx) が存在するか | 存在する (cx=`014066456404057816254:1wzh5t2n5cy`) |
-| Lambda が参照していた cx と現行 cx の一致 | **不一致** (Lambda は古い `013485343864242843670:2hl_4kgc9oy` を参照) |
-| 両 cx での API 呼び出し結果 | どちらも同じ 403 |
-| 新規 API キーを発行して試行 | 同じ 403 |
-| API を無効化 → 再有効化 | 同じ 403 |
-| プロジェクトへの課金アカウントリンク | リンク後も 403 |
+Programmable Search Engine の ID (cx)・API キー・API の有効化・課金アカウントのリンクのどれを変えても同じ 403 が返ったため、**プロジェクト単位で Custom Search JSON API へのアクセスが拒否されている** と判断した。
 
-cx・キー・API 有効化・課金すべての切り分けで 403 が再現するため、**プロジェクト単位で Custom Search JSON API へのアクセスが拒否されている** と判断した。
-
-### 根本原因
+### Google 側の告知
 
 Google 公式の [Custom Search JSON API 概要ページ](https://developers.google.com/custom-search/v1/overview?hl=ja) に以下の告知がある:
 
 > 注: カスタム検索 JSON API は、新規のお客様にはご利用いただけません。Vertex AI Search は、最大 50 個のドメインを検索する場合に最適な代替手段です。または、ウェブ全体を検索する必要があるユースケースについては、こちらからウェブ全体を検索するソリューションについてお問い合わせください。
 > 既存の Custom Search JSON API のお客様は、2027 年 1 月 1 日までに代替ソリューションに移行する必要があります。
 
-本プロジェクトは 2017 年から稼働していたが、近年は呼び出し頻度が低く、課金アカウントも未リンク状態であった。この条件が重なり、Google 側で「新規顧客」相当と再分類され、API アクセスがサイレントに遮断されたと推定される。同様の事象は Stack Overflow 等でも複数報告されており、課金アクティブ化や API 再有効化では復旧しないケースが多い。
+このプロジェクトのアクセスが拒否された理由は確かめていない。
 
 2027/01/01 以降は全顧客で利用不能になるため、いずれにせよ移行は必須である。
 
@@ -205,7 +193,7 @@ os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 - `google_search_key_placeholder`
 - `kms_key_arn_placeholder`
 
-その後 2026-04-19 に `lambda/build.sh` 自体を廃止し、CodePipeline 用の処理は [buildspec.yml](../buildspec.yml) へ、ローカル deploy 用の処理は [lambda/deploy-local.sh](../lambda/deploy-local.sh) へ分離した。CodeBuild 標準イメージには `sam` CLI が無く、build.sh に `sam deploy` を含めるとビルドが失敗するため。
+その後 2026-04-19 に `lambda/build.sh` 自体を廃止し、CodePipeline 用の処理は [buildspec.yml](../buildspec.yml) へ、ローカル deploy 用の処理は [lambda/deploy-local.sh](../lambda/deploy-local.sh) へ分離した。このプロジェクトの CodeBuild のイメージには `sam` CLI が無く、build.sh に `sam deploy` を含めるとビルドが失敗するため。
 
 ### .env.base の変更点
 
@@ -215,14 +203,13 @@ os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 
 CFN スタック側から依存が外れたリソースを整理した結果:
 
-- **Lambda 実行ロール (per-function に分離済み)**: 各 Function を `Role: role_arn_placeholder` (共有ロール参照) から SAM の `Policies` プロパティ (per-function 自動生成ロール) に切り替え済み。`historySteamGame` は `DynamoDBReadPolicy`、`steamGame` は `DynamoDBCrudPolicy` を付与。`robotsTxt` はポリシー無指定で SAM 自動の basic 実行ロールのみ。DLQ の `sns:Publish` と X-Ray の書込権限は `DeadLetterQueue` / `Tracing: Active` の指定から SAM が自動付与するため明示不要。`.env` の `LAMBDA_ROLE_ARN` は未使用 (将来削除可)。
-- **旧共有ロール `arn:aws:iam::022531335481:role/service-role/lambda` は削除保留**: TSGIS からの参照はゼロになったが、`MCS-Stack-MCS*` (5 Function) と `loginReNet` が引き続き共用しているため、単独削除すると他系統が停止する。本スタックのクリーンアップ目的としては完了扱いとし、旧ロール削除は MCS-Stack / loginReNet の個別移行と合わせて別タスクで実施する。
+- **Lambda 実行ロール (per-function に分離済み)**: 各 Function を `Role: role_arn_placeholder` (共有ロール参照) から SAM の `Policies` プロパティ (per-function 自動生成ロール) に切り替え済み。`historySteamGame` は `DynamoDBReadPolicy`、`steamGame` は `DynamoDBCrudPolicy` を付与。`robotsTxt` はポリシー無指定で SAM 自動の basic 実行ロールのみ。DLQ の `sns:Publish` と X-Ray の書込権限は `DeadLetterQueue` / `Tracing: Active` の指定から SAM が自動付与するため明示不要。`.env` の `LAMBDA_ROLE_ARN` は未使用になった (`lambda/.env.base` の定義は、その後に削除した)。
+- **旧共有ロール**: 本スタックのテンプレートからの参照はゼロになった (切り替えの前に公開した関数バージョンは、公開時のロールを指したまま残る)。ロール自体は本スタックの外でも使われているため、本スタックのクリーンアップでは削除していない。
 - **CMK (旧 Google API キー暗号化用)**: 削除済み。
-- **CodeBuild 環境変数**: `ENCRYPTED_GOOGLE_API_KEY` / `ENCRYPTED_GOOGLE_APP_ID` / `KMS_KEY_ARN` / `GOOGLE_SEARCH_KEY` を削除済み。
 
 #### SAM Policies 化に伴う CFn service role の権限追加 (恒久)
 
-SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を自動付与する。CloudFormation の service role `cloudformation-lambda-execution-role` のインラインポリシー `cloudformation-lambda-execution-policy` には当初 `iam:TagRole` / `iam:UntagRole` が無く初回 deploy が `UnauthorizedTaggingOperation` で失敗したため、`arn:aws:iam::022531335481:role/*` スコープで両 Action を追加した。IAM 系 Action 群 (CreateRole/DeleteRole/PutRolePolicy/AttachRolePolicy 等) が既に同スコープで許可されているので権限範囲の実質的拡大は無いが、SAM で Policies 化する他スタック (MCS-Stack 等) の今後の移行時には同権限が前提になる。
+SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を自動付与する。スタックを deploy する CloudFormation の service role には当初 `iam:TagRole` / `iam:UntagRole` が無く初回 deploy が `UnauthorizedTaggingOperation` で失敗したため、両 Action を追加した。SAM の `Policies` を使うスタックの deploy では、この 2 つの Action が前提になる。
 
 ## 影響範囲とリスク
 
@@ -274,12 +261,12 @@ macOS (Python 3.14, curl) にて `IS_LAMBDA=true` + `python` シンボリック�
 
 ローカルマシンから deploy する場合は以下が必要:
 
-- `aws` CLI が `022531335481` アカウントに認証されていること
+- `aws` CLI が、スタックのある AWS アカウントに認証されていること
 - `sam` CLI がインストールされていること (macOS なら `brew install aws-sam-cli`)
 - `pip` もしくは `pip3` がパスに通っていること (deploy-local.sh は `command -v` で検出)
-- `AWS_BUCKET=semnil-ap-northeast-1` を shell に export してから `bash lambda/deploy-local.sh` を実行
+- `AWS_BUCKET=<deploy bucket>` (デプロイ用の S3 バケット) を shell に export してから `bash lambda/deploy-local.sh` を実行
 
-`lambda/deploy-local.sh` はローカル deploy 専用の自己完結スクリプト。CodePipeline 用の処理は [buildspec.yml](../buildspec.yml) 側で完結しており、両者は同じ sed 置換とパッケージング処理を別々に保持する (CodeBuild 標準イメージに `sam` CLI が無く共通の `build.sh` に集約できないため)。
+`lambda/deploy-local.sh` はローカル deploy 専用の自己完結スクリプト。CodePipeline 用の処理は [buildspec.yml](../buildspec.yml) 側で完結しており、両者は同じ sed 置換とパッケージング処理を別々に保持する (このプロジェクトの CodeBuild のイメージに `sam` CLI が無く共通の `build.sh` に集約できないため)。
 
 ### 回帰確認
 
