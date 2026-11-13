@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Backend of a Steam game information lookup: three Lambda functions behind API Gateway, with a DynamoDB table as the result cache. The frontend lives in another repository. `README.md` has the layout.
 
