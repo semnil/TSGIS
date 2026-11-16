@@ -251,7 +251,7 @@ SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を�
 
 ### 回帰確認
 
-- 既存のフロントエンド (別リポジトリ `semnil.com` の [www/game/js/search.js](https://github.com/semnil/semnil.com/blob/master/www/game/js/search.js), [www/game/js/hist.js](https://github.com/semnil/semnil.com/blob/master/www/game/js/hist.js)) のレスポンス形式互換性を確認
+- 既存のフロントエンド (別リポジトリ) が読むレスポンスの形を変えない
 - レスポンス JSON のキー (title, steam_url, date, genre, metascore, metacritics_url, reviews, price, steamdb_url, developer, developer_url) はすべて維持
 
 ## 参考リンク
