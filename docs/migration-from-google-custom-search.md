@@ -1,6 +1,6 @@
 # Google Custom Search JSON API から Steam Store Search API への移行
 
-> **ステータス (2026-04-18):** 実装・ローカル deploy 完了。本番エンドポイントで動作確認済み (HTTP 200)。不要になったテスト用 Lambda `steamGameTest` / `historySteamGameTest` も同時に削除済み。Lambda 実行ロールは SAM の `Policies` プロパティ方式 (per-function 自動生成ロール) に移行し、本スタックのテンプレートから旧共有ロールへの参照は消滅。CMK は削除済み。
+> **ステータス:** 移行済み。この文書は移行のときの設計と差分の記録で、今の構成は `lambda/` のコードと `AGENTS.md` にある。
 
 ## 目的
 
@@ -10,7 +10,7 @@
 
 ### 発生した障害
 
-`https://apil1.semnil.com/steamGame?title=...` が HTTP 403 を返し、機能不能状態となった。Lambda 側のレスポンス本文は以下:
+API の `/steamGame?title=...` が HTTP 403 を返し、機能不能状態となった。Lambda 側のレスポンス本文は以下:
 
 ```json
 {
@@ -113,7 +113,7 @@ flowchart LR
 
 ## 実装計画
 
-> 以下は差分と設計意図の記録 (移行時点のスナップショット)。2026-04-18 に本番 deploy 完了。テスト用 Lambda は同時に撤去したため、後続のセクションで登場する `steamGameTest` / `historySteamGameTest` 関連の記述は「撤去前の旧構成」として読み替えること。
+> 以下は差分と設計意図の記録 (移行時点のスナップショット)。テスト用 Lambda は移行と同時に撤去したため、後続のセクションで登場する `steamGameTest` / `historySteamGameTest` 関連の記述は「撤去前の旧構成」として読み替えること。
 
 ### 対象ファイル
 
@@ -199,17 +199,16 @@ os.environ['GOOGLE_APP_ID'] = os.environ['GOOGLE_SEARCH_KEY']
 
 `ENCRYPTED_GOOGLE_API_KEY`, `ENCRYPTED_GOOGLE_APP_ID`, `KMS_KEY_ARN`, `GOOGLE_SEARCH_KEY` の 4 つの `export` 行を削除。CodeBuild の環境変数からも併せて外すこと。
 
-### IAM ロール・AWS リソースのクリーンアップ (2026-04-18 時点の状況)
+### IAM ロール・AWS リソースのクリーンアップ
 
 CFN スタック側から依存が外れたリソースを整理した結果:
 
 - **Lambda 実行ロール (per-function に分離済み)**: 各 Function を `Role: role_arn_placeholder` (共有ロール参照) から SAM の `Policies` プロパティ (per-function 自動生成ロール) に切り替え済み。`historySteamGame` は `DynamoDBReadPolicy`、`steamGame` は `DynamoDBCrudPolicy` を付与。`robotsTxt` はポリシー無指定で SAM 自動の basic 実行ロールのみ。DLQ の `sns:Publish` と X-Ray の書込権限は `DeadLetterQueue` / `Tracing: Active` の指定から SAM が自動付与するため明示不要。`.env` の `LAMBDA_ROLE_ARN` は未使用になった (`lambda/.env.base` の定義は、その後に削除した)。
-- **旧共有ロール**: 本スタックのテンプレートからの参照はゼロになった (切り替えの前に公開した関数バージョンは、公開時のロールを指したまま残る)。ロール自体は本スタックの外でも使われているため、本スタックのクリーンアップでは削除していない。
-- **CMK (旧 Google API キー暗号化用)**: 削除済み。
+- **旧共有ロール**: 本スタックのテンプレートからの参照はゼロになった (切り替えの前に公開した関数バージョンは、公開時のロールを指したまま残る)。
 
-#### SAM Policies 化に伴う CFn service role の権限追加 (恒久)
+#### SAM Policies 化に伴う CFn service role の権限 (恒久)
 
-SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を自動付与する。スタックを deploy する CloudFormation の service role には当初 `iam:TagRole` / `iam:UntagRole` が無く初回 deploy が `UnauthorizedTaggingOperation` で失敗したため、両 Action を追加した。SAM の `Policies` を使うスタックの deploy では、この 2 つの Action が前提になる。
+SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を自動付与する。そのため、SAM の `Policies` を使うスタックの deploy では、スタックを deploy する CloudFormation の service role に `iam:TagRole` / `iam:UntagRole` が要る。無いと deploy が `UnauthorizedTaggingOperation` で失敗する。
 
 ## 影響範囲とリスク
 
@@ -233,29 +232,11 @@ SAM は `AWS::IAM::Role` 作成時にタグ (`lambda:createdBy=SAM` など) を�
 - 現行プロジェクトはユーザー数が限定的であり、問題になる可能性は低い
 - 心配な場合は DynamoDB キャッシュ (既存の `histories` テーブル) を優先利用するロジックを維持
 
-## 動作確認計画
+## ローカルでの実行と deploy
 
-### ローカル確認結果 (2026-04-18 実施)
+### info_json.sh をローカルで動かすとき
 
-macOS (Python 3.14, curl) にて `IS_LAMBDA=true` + `python` シンボリックリンク (`python` → `python3`) を用意して実施。すべて期待どおりの挙動。
-
-| 入力 | 結果 |
-|---|---|
-| `portal` | Portal 2 (app/620) |
-| `half-life` | Half-Life (app/70) |
-| `ファイナルファンタジー` (URL エンコード済み) | FFXIII (app/292120) |
-| `https://store.steampowered.com/app/620/` | そのまま通過し Portal 2 を取得 |
-| `620` (app_id) | Portal 2 (app/620) |
-| `zzz_nonexistent_game_xxx` | `{"error":"No steam app matched the query."}` |
-
-> 注: ローカル Lambda 環境以外では `python` コマンドが無いことが多いため、本スクリプトは Lambda 側での実行を前提とする。macOS でローカル検証する場合は `ln -sf $(which python3) /tmp/pyshim/python && export PATH=/tmp/pyshim:$PATH` のような一時シンボリックリンクで回避する。
-
-### デプロイ後の確認結果 (2026-04-18 実施)
-
-1. ローカル `lambda/deploy-local.sh` で SAM パッケージング + `sam deploy` 成功 (`Successfully created/updated stack - TGIS-Stack in ap-northeast-1`)
-2. 初回 deploy で `Runtime.ImportModuleError: No module named 'aws_xray_sdk'` が発生 → `pip install aws-xray-sdk -t lambda/*/vendored/.` を buildspec.yml / deploy-local.sh 双方の前処理に入れることで解消
-3. `GET https://apil1.semnil.com/steamGame?title=portal&cache=no` が HTTP 200 を返し Portal 2 (app/620) のデータを取得することを確認
-4. DynamoDB のキャッシュ (`cache=yes` デフォルト) は旧実装と同一経路のため継続して機能
+`lambda/steamGame/info_json.sh` は `python` コマンドを呼ぶ。Lambda のランタイムには `python` があるが、ローカルの環境には `python3` しか無いことが多いため、本スクリプトは Lambda 側での実行を前提とする。macOS でローカルに動かす場合は `ln -sf $(which python3) /tmp/pyshim/python && export PATH=/tmp/pyshim:$PATH` のような一時シンボリックリンクで回避する。`IS_LAMBDA` を空でない値 (`IS_LAMBDA=true` など) にすると、入力のデコードが Lambda と同じ `uridecode.py` の経路になる (空のときは `nkf` を使う)。
 
 ### ローカル deploy 時の前提条件
 
